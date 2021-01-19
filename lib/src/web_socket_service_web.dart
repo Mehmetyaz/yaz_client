@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
 import 'package:yaz_client/src/services/web_socket_abstract.dart';
 
+import 'exceptions/expected_arguments_web_socket.dart';
 
 WebSocketServiceBase socketServiceInternal = WebSocketServiceWeb();
 
@@ -15,20 +17,24 @@ class WebSocketServiceWeb extends WebSocketServiceBase {
   ///singleton class
   WebSocketServiceWeb._internal();
 
-  static final WebSocketServiceWeb _instance =
-      WebSocketServiceWeb._internal();
-
+  static final WebSocketServiceWeb _instance = WebSocketServiceWeb._internal();
 
   WebSocket socket;
 
   ///bağlantı
   Future<bool> connect([int i = 0]) async {
+    if (options.globalHostName == null || options.webSocketPort == null) {
+      throw MissingWebSocketArguments(
+          hostIsNull: options.globalHostName == null,
+          portIsNull: options.webSocketPort == null);
+    }
     try {
       // ignore: avoid_print
       print('CONNECTION ${socket?.readyState ?? 'null'}');
 
       if (socket == null || socket?.readyState == 3) {
-        socket = WebSocket("ws://${options.globalHostName}:${options.webSocketPort}/ws");
+        socket = WebSocket(
+            "ws://${options.globalHostName}:${options.webSocketPort}/ws");
         connected = false;
         return await connect(i++);
       } else if (socket?.readyState == 1) {
