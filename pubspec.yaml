@@ -1,9 +1,10 @@
 name: yaz_client
-description: A new Flutter package.
+description: Yaz Framework Api For Flutter Client
 version: 0.0.1
-author:
-homepage:
-  publish_to:none
+authors:
+  - mehmedyaz@gmail.com
+homepage: https://github.com/Mehmetyaz/yaz_client.git
+repository: https://github.com/Mehmetyaz/yaz_client.git
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -25,4 +26,3 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-flutter:
