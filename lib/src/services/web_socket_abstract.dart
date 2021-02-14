@@ -22,7 +22,9 @@ import 'auth_service.dart';
 
 class SocketServiceOptions {
   factory SocketServiceOptions() => _instance;
+
   SocketServiceOptions._internal();
+
   static final SocketServiceOptions _instance =
       SocketServiceOptions._internal();
 
@@ -417,8 +419,8 @@ abstract class WebSocketServiceBase {
       // ignore: avoid_print
       // print('Connection Requested');
 
-      var response = await get(
-          'http://${options.globalHostName}:${options.mediaServerPort}/socket_request');
+      var response = await get(Uri.parse(
+          'http://${options.globalHostName}:${options.mediaServerPort}/socket_request'));
       // ignore: avoid_print
       // print('RESPONSE RECEIVED : ${response.body}');
       var decodedResponse = json.decode(response.body);
