@@ -19,13 +19,18 @@ export 'package:yaz_client/src/services/auth_service.dart' show authService;
 export 'package:yaz_client/src/statics/image_size.dart' show ImageSize;
 export 'package:yaz_client/src/statics/query_type.dart' show QueryType;
 export 'package:yaz_client/src/statics/sorting.dart' show Sorting;
-export 'package:yaz_client/src/services/chat_service.dart' show chatService;
-export 'package:yaz_client/src/models/chat.dart' show Chat;
-export 'package:yaz_client/src/models/chat_message.dart' show ChatMessage;
+export 'package:yaz_client/src/services/chat/chat.dart'
+    show
+        YazChatMessage,
+        YazChatConversation,
+        YazChatListWidget,
+        YazMessageListWidget,
+        chatService;
 export 'package:yaz_client/src/statics/statics.dart'
     show UserModelStatics, Statics, TypeCasts;
 export 'package:yaz_client/src/extensions/duration.dart';
 export 'package:yaz_client/src/extensions/date_time.dart';
+
 class YazClient {
   static void init(
       {@required String secret1,
@@ -36,3 +41,12 @@ class YazClient {
     socketService.init(host, port);
   }
 }
+
+
+
+String greet(){
+  return "Hello word!";
+}
+
+
+

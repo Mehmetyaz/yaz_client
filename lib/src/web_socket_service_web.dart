@@ -63,7 +63,7 @@ class WebSocketServiceWeb extends WebSocketServiceBase {
           }, onDone: () {
             connected = false;
           });
-        } on Exception catch (e) {
+        } on Exception {
           socket = null;
           await connect(i++);
         }

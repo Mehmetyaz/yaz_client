@@ -302,20 +302,20 @@ abstract class WebSocketServiceBase {
     }
   }
 
-  String _byteCountToString(int byte) {
-    if (byte < 1024) {
-      return '$byte B';
-    } else if (byte < 1024 * 1024) {
-      var kb = (byte / 1024 * 100).floor() / 100;
-      return '$kb Kb';
-    } else if (byte < 1024 * 1024 * 1024) {
-      var mb = (byte / (1024 * 1024) * 100).floor() / 100;
-      return '$mb Mb';
-    } else {
-      var gb = (byte / (1024 * 1024 * 1024) * 100).floor() / 100;
-      return '$gb gb';
-    }
-  }
+  // String _byteCountToString(int byte) {
+  //   if (byte < 1024) {
+  //     return '$byte B';
+  //   } else if (byte < 1024 * 1024) {
+  //     var kb = (byte / 1024 * 100).floor() / 100;
+  //     return '$kb Kb';
+  //   } else if (byte < 1024 * 1024 * 1024) {
+  //     var mb = (byte / (1024 * 1024) * 100).floor() / 100;
+  //     return '$mb Mb';
+  //   } else {
+  //     var gb = (byte / (1024 * 1024 * 1024) * 100).floor() / 100;
+  //     return '$gb gb';
+  //   }
+  // }
 
   ///Exists query
   Future<bool> exists(Query _query, {int trying = 0}) async {

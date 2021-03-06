@@ -8,8 +8,6 @@ import 'package:yaz_client/src/statics/statics.dart';
 
 import '../../socket_service.dart';
 
-///
-@JsonSerializable()
 class SocketData {
   ///
   SocketData();

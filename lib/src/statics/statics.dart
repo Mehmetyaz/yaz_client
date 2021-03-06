@@ -37,10 +37,10 @@ mixin TypeCasts {
 mixin UserModelStatics {
   /// return DateTime from json stored type time (millisecondsSinceEpoch)
   static DateTime dateFromJson(int raw) =>
-      DateTime.fromMillisecondsSinceEpoch(raw);
+      DateTime.fromMillisecondsSinceEpoch(raw ?? 0);
 
   /// return json stored type time (millisecondsSinceEpoch) from DateTime
-  static int dateToInt(DateTime time) => time.millisecondsSinceEpoch;
+  static int dateToInt(DateTime time) => time == null ? null : time.millisecondsSinceEpoch;
 }
 
 ///
