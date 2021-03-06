@@ -7,7 +7,7 @@ class _ChatMessageWidget extends StatefulWidget {
   final Widget Function(YazChatMessage message) builder;
 
   const _ChatMessageWidget(
-      {Key key, @required this.message, @required this.builder})
+      {Key? key, required this.message, required this.builder})
       : super(key: key);
 
   @override
@@ -21,11 +21,11 @@ class __ChatMessageWidgetState extends State<_ChatMessageWidget> {
     }
   }
 
-  bool listenerNeed;
+  late bool listenerNeed;
 
   @override
   void initState() {
-    listenerNeed = !widget.message.sent || !widget.message.receiverSeen;
+    listenerNeed = !widget.message.sent || !widget.message.receiverSeen!;
     if (listenerNeed) widget.message.addListener(_listener);
     super.initState();
   }
@@ -44,14 +44,14 @@ class __ChatMessageWidgetState extends State<_ChatMessageWidget> {
 
 class YazMessageListWidget extends StatefulWidget {
   YazMessageListWidget(
-      {Key key,
+      {Key? key,
       this.messageBuilder = _defaultMessageBuilder,
       this.sliverList = false,
       this.cacheExtend = 1000,
       this.itemExtend,
       this.scrollController,
       this.notSeenMessageCountListener,
-      @required this.conversation})
+      required this.conversation})
       : super(key: key);
 
   static Widget _defaultMessageBuilder(YazChatMessage message) {
@@ -60,7 +60,7 @@ class YazMessageListWidget extends StatefulWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text(message.content),
+            child: Text(message.content!),
           )
         ],
       ),
@@ -72,18 +72,18 @@ class YazMessageListWidget extends StatefulWidget {
   final bool sliverList;
 
   final double cacheExtend;
-  final double itemExtend;
-  final ScrollController scrollController;
+  final double? itemExtend;
+  final ScrollController? scrollController;
 
-  final void Function(int count) notSeenMessageCountListener;
+  final void Function(int? count)? notSeenMessageCountListener;
 
   @override
   _YazMessageListWidgetState createState() => _YazMessageListWidgetState();
 }
 
 class _YazMessageListWidgetState extends State<YazMessageListWidget> {
-  ScrollController _scrollController;
-  int _lastNotSeenMessageCount;
+  ScrollController? _scrollController;
+  int? _lastNotSeenMessageCount;
 
   void _listener() async {
     await Future.delayed(Duration(milliseconds: 30));
@@ -94,7 +94,7 @@ class _YazMessageListWidgetState extends State<YazMessageListWidget> {
       var _mC = widget.conversation.notSeenMessageCount;
       if (_lastNotSeenMessageCount != _mC) {
         _lastNotSeenMessageCount = _mC;
-        widget.notSeenMessageCountListener(_lastNotSeenMessageCount);
+        widget.notSeenMessageCountListener!(_lastNotSeenMessageCount);
       }
     }
   }
@@ -120,8 +120,8 @@ class _YazMessageListWidgetState extends State<YazMessageListWidget> {
       });
     }
 
-    return widget.messageBuilder(widget.conversation.messages[
-        widget.sliverList ? widget.conversation.messageCount - i - 1 : i]);
+    return widget.messageBuilder(widget.conversation.messages![
+        widget.sliverList ? widget.conversation.messageCount - i - 1 as int : i]);
   }
 
   final YazChatService chatService = YazChatService();

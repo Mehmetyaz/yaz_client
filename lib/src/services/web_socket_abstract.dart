@@ -1,10 +1,5 @@
 import 'dart:async'
-    show
-        Future,
-        Stream,
-        StreamController,
-        StreamSubscription,
-        StreamTransformer;
+    show Future, FutureOr, Stream, StreamController, StreamSubscription, StreamTransformer;
 import 'dart:convert';
 
 import 'package:cryptography/cryptography.dart' show Nonce;
@@ -19,6 +14,7 @@ import '../models/query_model/query_model.dart';
 import '../models/socket_data/socket_data.dart';
 import '../statics/statics.dart';
 import 'auth_service.dart';
+import 'encryption.dart';
 
 class SocketServiceOptions {
   factory SocketServiceOptions() => _instance;
@@ -29,27 +25,27 @@ class SocketServiceOptions {
       SocketServiceOptions._internal();
 
   ///Access token
-  String token;
+  String? token;
 
   ///Unique random device ID
-  String deviceID;
+  String? deviceID;
 
   ///kriptolama ile ilgili bilgiler burada tutuluyor.
   ///Tüm bağlantılar buradan yönetiliyor
-  Nonce nonce, cNonce;
+  Nonce? nonce, cNonce;
 
   ///Web socket posr
-  String webSocketPort;
+  String? webSocketPort;
 
   ///Media server port
-  String mediaServerPort;
+  String? mediaServerPort;
 
   // String _ = '192.168.1.19';
 
 /*  static final String _hostname = '192.168.1.19';*/
 
   ///Global host
-  String globalHostName;
+  String? globalHostName;
 
   ///Stream socket connection
   ///Listening messages
@@ -78,7 +74,7 @@ abstract class WebSocketServiceBase {
   bool connected = false;
 
   /// Only use for custom data listening
-  Stream<SocketData> listenCustomMessage({String id, String type}) async* {
+  Stream<SocketData> listenCustomMessage({String? id, String? type}) async* {
     await for (var d in options.socketConnection.where((event) {
       Map<String, dynamic> _d = json.decode(event);
       var _dType = _d['message_type'];
@@ -103,10 +99,10 @@ abstract class WebSocketServiceBase {
 
   ///Wait socket message
   ///Waiting message that [id] equals sent message [id]
-  Future<SocketData> waitMessage({String id, String type}) async {
+  Future<SocketData> waitMessage({String? id, String? type}) async {
     if (connected) {
       var d =
-          SocketData.fromSocket(await options.socketConnection.where((event) {
+          SocketData.fromSocket(await (options.socketConnection.where((event) {
         Map<String, dynamic> _d = json.decode(event);
         var _dType = _d['message_type'];
         var _dId = _d['message_id'];
@@ -119,7 +115,7 @@ abstract class WebSocketServiceBase {
         } else {
           return true;
         }
-      }).first);
+      }).first));
 
       await d.decrypt();
       return d;
@@ -132,7 +128,7 @@ abstract class WebSocketServiceBase {
   ///Send data and wait response
   ///standart queryler için
   Future<SocketData> sendAndWaitMessage(SocketData data,
-      {bool encrypted = true, int trying}) async {
+      {bool encrypted = true, int? trying}) async {
     trying ??= 0;
     if (connected) {
       try {
@@ -216,7 +212,7 @@ abstract class WebSocketServiceBase {
 
   ///Query one document
   Future<SocketData> query(Query _query,
-      {int trying = 0, String customID}) async {
+      {int trying = 0, String? customID}) async {
     if (connected) {
       _query
         ..queryType ??= QueryType.query
@@ -271,7 +267,7 @@ abstract class WebSocketServiceBase {
   }
 
   ///List Query
-  Future<List<Map<String, dynamic>>> listQuery(Query _query,
+  Future<List<Map<String, dynamic>?>> listQuery(Query _query,
       {int trying = 0}) async {
     if (connected) {
       _query
@@ -280,10 +276,10 @@ abstract class WebSocketServiceBase {
 
       var dat = await sendAndWaitMessage(SocketData.create(
           data: <String, dynamic>{'query': _query}, type: "query"));
-      if (dat.isSuccess) {
-        var _process = <Map<String, dynamic>>[];
+      if (dat.isSuccess!) {
+        var _process = <Map<String, dynamic>?>[];
 
-        for (var _p in dat.data['list']) {
+        for (var _p in dat.data!['list']) {
           _process.add(_p);
         }
 
@@ -318,7 +314,7 @@ abstract class WebSocketServiceBase {
   // }
 
   ///Exists query
-  Future<bool> exists(Query _query, {int trying = 0}) async {
+  Future<bool?> exists(Query _query, {int trying = 0}) async {
     if (connected) {
       _query
         ..queryType = QueryType.exists
@@ -328,7 +324,7 @@ abstract class WebSocketServiceBase {
           data: <String, dynamic>{'query': _query}, type: "query"));
 
       print("exists : ${dat.data}");
-      return dat.data['exists'];
+      return dat.data!['exists'];
     } else {
       if (trying < 5) {
         await connect();
@@ -481,7 +477,7 @@ abstract class WebSocketServiceBase {
             }),
             encrypted: false);
 
-        if (stage2Data.isSuccess != null && !stage2Data.isSuccess) {
+        if (stage2Data.isSuccess != null && !stage2Data.isSuccess!) {
           throw Exception('Unsuccessful connection ${stage2Data.isSuccess}');
         }
 
@@ -489,10 +485,10 @@ abstract class WebSocketServiceBase {
         // print("STAGE 2 'ye erişimlidi : ${stage2Data.fullData}");
 
         ///server side nonce
-        options.nonce = TypeCasts.nonceCast(stage2Data.fullData['nonce']);
+        options.nonce = TypeCasts.nonceCast(stage2Data.fullData!['nonce']);
 
         ///generate client nonce
-        options.cNonce = Nonce.randomBytes(12);
+        options.cNonce = Nonce.random();
         var authService = AuthService();
 
         ///ADD remember operations
@@ -508,7 +504,7 @@ abstract class WebSocketServiceBase {
           'message_type': 'c_nonce_sending',
           'data': authData,
           'device_id': options.deviceID,
-          'c_nonce': options.cNonce.bytes
+          'c_nonce': options.cNonce!.list
         });
 
         await da.encrypt();
@@ -521,11 +517,11 @@ abstract class WebSocketServiceBase {
 
         print("TOKEN RECEIVED: ${stage4Data.fullData}");
 
-        options.token = stage4Data.data['token'];
+        options.token = stage4Data.data!['token'];
 
-        if (stage4Data.data['auth_type'] == 'auth' && options.token != null) {
+        if (stage4Data.data!['auth_type'] == 'auth' && options.token != null) {
           await authService.loginWithTokenInit(
-              options.token, stage4Data.data['user_data']);
+              options.token, stage4Data.data!['user_data']);
         }
 
         // ignore: avoid_print

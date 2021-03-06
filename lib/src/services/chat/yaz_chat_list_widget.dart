@@ -1,15 +1,15 @@
 part of 'chat.dart';
 
 class _ChatCardWidget<T> extends StatefulWidget {
-  final Widget Function(YazChatConversation conversation, T userInfo) builder;
+  final Widget Function(YazChatConversation? conversation, T userInfo) builder;
 
-  final YazChatConversation conversation;
+  final YazChatConversation? conversation;
 
-  final T userInfo;
+  final T? userInfo;
 
   const _ChatCardWidget({
-    Key key,
-    @required this.builder,
+    Key? key,
+    required this.builder,
     this.conversation,
     this.userInfo,
   }) : super(key: key);
@@ -18,7 +18,7 @@ class _ChatCardWidget<T> extends StatefulWidget {
   __ChatCardWidgetState<T> createState() => __ChatCardWidgetState<T>();
 }
 
-class __ChatCardWidgetState<T> extends State<_ChatCardWidget<T>> {
+class __ChatCardWidgetState<T> extends State<_ChatCardWidget<T?>> {
   _listener() async {
     await Future.delayed(Duration(milliseconds: 50));
     if (mounted) {
@@ -28,13 +28,13 @@ class __ChatCardWidgetState<T> extends State<_ChatCardWidget<T>> {
 
   @override
   void initState() {
-    widget.conversation.addListener(_listener);
+    widget.conversation!.addListener(_listener);
     super.initState();
   }
 
   @override
   void dispose() {
-    widget.conversation.removeListener(_listener);
+    widget.conversation!.removeListener(_listener);
     super.dispose();
   }
 
@@ -47,9 +47,9 @@ class __ChatCardWidgetState<T> extends State<_ChatCardWidget<T>> {
 
 class YazChatListWidget<T> extends StatefulWidget {
   YazChatListWidget(
-      {Key key,
-      @required this.conversationCardBuilder,
-      @required this.userInfoLoader,
+      {Key? key,
+      required this.conversationCardBuilder,
+      required this.userInfoLoader,
       this.sliverList = false,
       this.placeHolderBuilder = _defaultBuilder,
       this.errorBuilder = _defaultErrorBuilder,
@@ -59,7 +59,7 @@ class YazChatListWidget<T> extends StatefulWidget {
       this.notSeenMessageCountListener})
       : super(key: key);
 
-  static Widget _defaultBuilder(BuildContext context, String id, int index) {
+  static Widget _defaultBuilder(BuildContext context, String? id, int index) {
     return SizedBox(
       height: 30,
       width: 30,
@@ -67,37 +67,37 @@ class YazChatListWidget<T> extends StatefulWidget {
   }
 
   static Widget _defaultErrorBuilder(
-      BuildContext context, String id, int index) {
+      BuildContext context, String? id, int index) {
     return SizedBox(
       height: 30,
       width: 30,
     );
   }
 
-  final Widget Function(YazChatConversation conversation, T userInfo)
+  final Widget Function(YazChatConversation? conversation, T userInfo)
       conversationCardBuilder;
 
-  final Widget Function(BuildContext context, String id, int index)
+  final Widget Function(BuildContext context, String? id, int index)
       placeHolderBuilder;
-  final Widget Function(BuildContext context, String id, int index)
+  final Widget Function(BuildContext context, String? id, int index)
       errorBuilder;
 
-  final Future<T> Function(String userId) userInfoLoader;
+  final Future<T> Function(String? userId) userInfoLoader;
 
   final bool sliverList;
 
   final double cacheExtend;
-  final double itemExtend;
-  final ScrollController scrollController;
+  final double? itemExtend;
+  final ScrollController? scrollController;
 
-  final void Function(int count) notSeenMessageCountListener;
+  final void Function(int? count)? notSeenMessageCountListener;
 
   @override
   _YazChatListWidgetState<T> createState() => _YazChatListWidgetState<T>();
 }
 
 class _YazChatListWidgetState<T> extends State<YazChatListWidget<T>> {
-  ScrollController _scrollController;
+  late ScrollController _scrollController;
 
   Map<String, T> users = <String, T>{};
 
@@ -110,18 +110,18 @@ class _YazChatListWidgetState<T> extends State<YazChatListWidget<T>> {
   }
 
   Future<T> _infoLoader(String id) async {
-    var _r = await widget.userInfoLoader(id);
+    T _r = await widget.userInfoLoader(id);
     users[id] = _r;
     return _r;
   }
 
   Widget _buildCard(int index) {
     var id = chatService._conversationsIds[index];
-    var conversation = chatService._conversations[id];
+    var conversation = chatService._conversations[id]!;
     var userLoaded = users.containsKey(conversation.otherId);
     if (userLoaded) return _res(conversation);
     return FutureBuilder<T>(
-        future: _infoLoader(conversation.otherId),
+        future: _infoLoader(conversation.otherId!),
         builder: (c, AsyncSnapshot<T> snap) {
           if (snap.hasError) {
             return widget.errorBuilder(c, conversation.otherId, index);
@@ -141,7 +141,7 @@ class _YazChatListWidgetState<T> extends State<YazChatListWidget<T>> {
     return _buildCard(i);
   }
 
-  int _lastNotSeenMessageCount;
+  int? _lastNotSeenMessageCount;
 
   @override
   void initState() {
@@ -160,7 +160,7 @@ class _YazChatListWidgetState<T> extends State<YazChatListWidget<T>> {
       var _mC = chatService.notSeenMessageCount;
       if (_lastNotSeenMessageCount != _mC) {
         _lastNotSeenMessageCount = _mC;
-        widget.notSeenMessageCountListener(_lastNotSeenMessageCount);
+        widget.notSeenMessageCountListener!(_lastNotSeenMessageCount);
       }
     }
   }

@@ -1,9 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:cryptography/cryptography.dart' show Nonce;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yaz_client/src/models/user/current_user.dart';
-
 
 import '../models/socket_data/socket_data.dart';
 import '../socket_service.dart';
@@ -22,16 +22,16 @@ class AuthService {
   static final AuthService _instance = AuthService._internal();
 
   /// İf not nul Current User Logged In
-  String userID;
+  String? userID;
 
   ///Current Session Auth Token
-  String authToken;
+  String? authToken;
 
   ///Is Logged In
   bool isLoggedIn = false;
 
   /// If not null isLoggedIn
-  CurrentUser currentUser;
+  CurrentUser? currentUser;
 
   /// Nonces for shared prefs crypt
   ///
@@ -46,11 +46,7 @@ class AuthService {
   ///
 
   /// Return remember button is marked
-  Future<bool> get _isLoggedRemember async {
-
-
-
-
+  Future<bool?> get _isLoggedRemember async {
     var preferences = await SharedPreferences.getInstance();
     var remember = preferences.containsKey('remember_user');
     if (remember) {
@@ -80,7 +76,7 @@ class AuthService {
         ///   {
         ///   data : [UInt8List]
         ///   }
-        var dataEncrypted = json.decode(preferences.getString('auth_data'));
+        var dataEncrypted = json.decode(preferences.getString('auth_data')!);
 
         ///   {
         ///
@@ -89,8 +85,8 @@ class AuthService {
         ///          }
         ///
         ///   }
-        var decryptedData = await encryptionService.decrypt1(
-            base64Data: dataEncrypted['data'], nonce: _nonce, cnonce: _cNonce);
+        var decryptedData = await (encryptionService.decrypt1(
+            data: dataEncrypted['data'], nonce: _nonce, cnonce: _cNonce));
 
         return {
           'auth_type': 'auth',
@@ -116,7 +112,7 @@ class AuthService {
 
   /// User data at the beginning of the session
   Future<Map<String, dynamic>> get initialAuthData async {
-    var _isLogged = await _isLoggedRemember;
+    var _isLogged = await (_isLoggedRemember as FutureOr<bool>);
     if (_isLogged) {
       return _savedAuthData;
     } else {
@@ -129,7 +125,7 @@ class AuthService {
 
   ///Login initial
   Future<void> loginWithTokenInit(
-      String token, Map<String, dynamic> userData) async {
+      String? token, Map<String, dynamic> userData) async {
     //TODO: Set User Data
     currentUser = CurrentUser.fromJson(userData);
     userID = currentUser?.userID;
@@ -138,15 +134,16 @@ class AuthService {
     isLoggedIn = true;
   }
 
-
   ///Register User
-  Future<Map<String, dynamic>> register(Map<String, dynamic> user) async {
+  Future<Map<String, dynamic>?> register(Map<String, dynamic> user) async {
     if (!socketService.connected) {
       await socketService.connect();
     }
 
     var dat = await socketService.sendAndWaitMessage(SocketData.create(
-        data: user, type: "register", messageId: socketService.options.deviceID));
+        data: user,
+        type: "register",
+        messageId: socketService.options.deviceID));
     await dat.decrypt();
     return dat.data;
   }
@@ -167,18 +164,18 @@ class AuthService {
 
     print(response.fullData);
 
-    if (response.isSuccess) {
+    if (response.isSuccess!) {
       if (remember) {
         await saveAuthData({'user_mail': mail, 'password': pass});
       }
-      currentUser = CurrentUser.fromJson(response.data);
+      currentUser = CurrentUser.fromJson(response.data!);
       userID = currentUser?.userID;
 
       //TODO:Set User Image
 
       print("LOGIN TOKEN: ${response.fullData}");
 
-      authToken = response.data['token'];
+      authToken = response.data!['token'];
       socketService.options.token = authToken;
       isLoggedIn = true;
     } else {

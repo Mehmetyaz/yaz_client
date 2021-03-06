@@ -19,7 +19,7 @@ class WebSocketServiceMobile extends WebSocketServiceBase {
   static final WebSocketServiceMobile _instance =
       WebSocketServiceMobile._internal();
 
-  WebSocket socket;
+  WebSocket? socket;
 
   ///bağlantı
   Future<bool> connect([int i = 0]) async {
@@ -65,7 +65,7 @@ class WebSocketServiceMobile extends WebSocketServiceBase {
         }
 
         options.socketConnection.listen((event) {
-          options.downloadBytes += (event.length * 2) as int;
+          options.downloadBytes += ((event.length * 2) as int?)!;
           // ignore: avoid_print
 
           var dat = json.decode(event);
@@ -98,11 +98,11 @@ class WebSocketServiceMobile extends WebSocketServiceBase {
 
   @override
   closeSocket() {
-    socket.close();
+    socket!.close();
   }
 
   @override
   void sendMessage(String data) {
-    socket.add(data);
+    socket!.add(data);
   }
 }

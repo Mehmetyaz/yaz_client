@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
+import 'package:yaz_client/src/services/encryption.dart';
 
 
 ///
@@ -36,11 +37,11 @@ mixin TypeCasts {
 /// Static methods about User Model
 mixin UserModelStatics {
   /// return DateTime from json stored type time (millisecondsSinceEpoch)
-  static DateTime dateFromJson(int raw) =>
+  static DateTime dateFromJson(int? raw) =>
       DateTime.fromMillisecondsSinceEpoch(raw ?? 0);
 
   /// return json stored type time (millisecondsSinceEpoch) from DateTime
-  static int dateToInt(DateTime time) => time == null ? null : time.millisecondsSinceEpoch;
+  static int? dateToInt(DateTime? time) => time == null ? null : time.millisecondsSinceEpoch;
 }
 
 ///
@@ -62,7 +63,7 @@ mixin Statics {
     for (var c in _randId) {
       id.write(c);
     }
-    return id.toString() ?? '';
+    return id.toString();
   }
 
   ///Get Time Ago

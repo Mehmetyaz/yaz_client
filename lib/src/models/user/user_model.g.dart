@@ -9,9 +9,9 @@ part of 'user_model.dart';
 YazApiUser _$YazApiUserFromJson(Map<String, dynamic> json) {
   $checkKeys(json, requiredKeys: const ['user_id']);
   return YazApiUser(
-    json['user_first_name'] as String,
-    json['user_last_name'] as String,
-    json['user_id'] as String,
+    json['user_first_name'] as String?,
+    json['user_last_name'] as String?,
+    json['user_id'] as String?,
   );
 }
 

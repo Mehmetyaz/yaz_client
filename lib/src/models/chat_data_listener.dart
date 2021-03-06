@@ -24,7 +24,7 @@ class ChatDataListener extends Stream<SocketData> {
   }
 
 
-  String _id;
+  String? _id;
 
 
 
@@ -40,8 +40,8 @@ class ChatDataListener extends Stream<SocketData> {
 
 
   @override
-  StreamSubscription<SocketData> listen(void Function(SocketData event) onData,
-      {Function onError, void Function() onDone, bool cancelOnError}) {
+  StreamSubscription<SocketData> listen(void Function(SocketData event)? onData,
+      {Function? onError, void Function()? onDone, bool? cancelOnError}) {
     isActive = true;
     reactive();
     return socketService.options.socketConnection.where((d) {

@@ -10,14 +10,14 @@ part 'query_model.g.dart';
 class Query {
   ///Is the same [Query.create]
   Query(this.collection,
-      {@required this.sorts,
-      @required this.equals,
-      @required this.filters,
-      @required this.update,
-      @required this.limit,
-      @required this.offset,
-      @required this.token,
-      @required this.queryType,
+      {required this.sorts,
+      required this.equals,
+      required this.filters,
+      required this.update,
+      required this.limit,
+      required this.offset,
+      required this.token,
+      required this.queryType,
       this.document});
 
   ///Create Query
@@ -42,22 +42,22 @@ class Query {
 
   ///Query Collection
   @JsonKey(name: "collection", nullable: false)
-  String collection;
+  String? collection;
 
   ///
   @JsonKey(name: "query_type", nullable: false)
-  QueryType queryType;
+  QueryType? queryType;
 
   ///Query one document
   @JsonKey(name: 'document', nullable: true)
-  Map<String, dynamic> document;
+  Map<String, dynamic>? document;
 
   @JsonKey(name: 'fields', nullable: true)
-  Map<String, bool> fields;
+  Map<String, bool>? fields;
 
   ///Access token request type
   @JsonKey(name: 'token', required: true, nullable: false, includeIfNull: false)
-  String token;
+  String? token;
 
   ///
   @JsonKey(name: 'offset', defaultValue: 0)
@@ -81,5 +81,5 @@ class Query {
 
   ///Sort Query
   @JsonKey(name: 'sorts', defaultValue: <String, Sorting>{})
-  Map<String, Sorting> sorts = <String, Sorting>{};
+  Map<String, Sorting?> sorts = <String, Sorting>{};
 }

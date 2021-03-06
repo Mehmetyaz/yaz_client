@@ -9,68 +9,83 @@ part of 'query_model.dart';
 Query _$QueryFromJson(Map<String, dynamic> json) {
   $checkKeys(json, requiredKeys: const ['token']);
   return Query(
-    json['collection'] as String,
-    sorts: (json['sorts'] as Map<String, dynamic>)?.map(
+    json['collection'] as String?,
+    sorts: (json['sorts'] as Map<String, dynamic>?)?.map(
           (k, e) => MapEntry(k, _$enumDecodeNullable(_$SortingEnumMap, e)),
         ) ??
         {},
-    equals: json['equals'] as Map<String, dynamic> ?? {},
-    filters: json['filters'] as Map<String, dynamic> ?? {},
-    update: json['update'] as Map<String, dynamic> ?? {},
-    limit: json['limit'] as int ?? 100,
-    offset: json['offset'] as int ?? 0,
-    token: json['token'] as String,
-    queryType: _$enumDecode(_$QueryTypeEnumMap, json['query_type']),
-    document: json['document'] as Map<String, dynamic>,
-  )..fields = (json['fields'] as Map<String, dynamic>)?.map(
+    equals: json['equals'] as Map<String, dynamic>? ?? {},
+    filters: json['filters'] as Map<String, dynamic>? ?? {},
+    update: json['update'] as Map<String, dynamic>? ?? {},
+    limit: json['limit'] as int? ?? 100,
+    offset: json['offset'] as int? ?? 0,
+    token: json['token'] as String?,
+    queryType: _$enumDecodeNullable(_$QueryTypeEnumMap, json['query_type']),
+    document: json['document'] as Map<String, dynamic>?,
+  )..fields = (json['fields'] as Map<String, dynamic>?)?.map(
       (k, e) => MapEntry(k, e as bool),
     );
 }
 
-Map<String, dynamic> _$QueryToJson(Query instance) => <String, dynamic>{
-      'collection': instance.collection,
-      'query_type': _$QueryTypeEnumMap[instance.queryType],
-      'document': instance.document,
-      'fields': instance.fields,
-      'token': instance.token,
-      'offset': instance.offset,
-      'limit': instance.limit,
-      'update': instance.update,
-      'filters': instance.filters,
-      'equals': instance.equals,
-      'sorts': instance.sorts?.map((k, e) => MapEntry(k, _$SortingEnumMap[e])),
-    };
+Map<String, dynamic> _$QueryToJson(Query instance) {
+  final val = <String, dynamic>{
+    'collection': instance.collection,
+    'query_type': _$QueryTypeEnumMap[instance.queryType],
+    'document': instance.document,
+    'fields': instance.fields,
+  };
 
-T _$enumDecode<T>(
-  Map<T, dynamic> enumValues,
-  dynamic source, {
-  T unknownValue,
-}) {
-  if (source == null) {
-    throw ArgumentError('A value must be provided. Supported values: '
-        '${enumValues.values.join(', ')}');
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
   }
 
-  final value = enumValues.entries
-      .singleWhere((e) => e.value == source, orElse: () => null)
-      ?.key;
-
-  if (value == null && unknownValue == null) {
-    throw ArgumentError('`$source` is not one of the supported values: '
-        '${enumValues.values.join(', ')}');
-  }
-  return value ?? unknownValue;
+  writeNotNull('token', instance.token);
+  val['offset'] = instance.offset;
+  val['limit'] = instance.limit;
+  val['update'] = instance.update;
+  val['filters'] = instance.filters;
+  val['equals'] = instance.equals;
+  val['sorts'] = instance.sorts.map((k, e) => MapEntry(k, _$SortingEnumMap[e]));
+  return val;
 }
 
-T _$enumDecodeNullable<T>(
-  Map<T, dynamic> enumValues,
+K _$enumDecode<K, V>(
+  Map<K, V> enumValues,
+  Object? source, {
+  K? unknownValue,
+}) {
+  if (source == null) {
+    throw ArgumentError(
+      'A value must be provided. Supported values: '
+      '${enumValues.values.join(', ')}',
+    );
+  }
+
+  return enumValues.entries.singleWhere(
+    (e) => e.value == source,
+    orElse: () {
+      if (unknownValue == null) {
+        throw ArgumentError(
+          '`$source` is not one of the supported values: '
+          '${enumValues.values.join(', ')}',
+        );
+      }
+      return MapEntry(unknownValue, enumValues.values.first);
+    },
+  ).key;
+}
+
+K? _$enumDecodeNullable<K, V>(
+  Map<K, V> enumValues,
   dynamic source, {
-  T unknownValue,
+  K? unknownValue,
 }) {
   if (source == null) {
     return null;
   }
-  return _$enumDecode<T>(enumValues, source, unknownValue: unknownValue);
+  return _$enumDecode<K, V>(enumValues, source, unknownValue: unknownValue);
 }
 
 const _$SortingEnumMap = {

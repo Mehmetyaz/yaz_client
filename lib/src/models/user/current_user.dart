@@ -10,12 +10,12 @@ part 'current_user.g.dart';
 @JsonSerializable()
 class CurrentUser extends YazApiUser {
   ///
-  CurrentUser(String firstName, String lastName, String userID,
-      {@required this.biography,
-      @required this.birthDate,
-      @required this.isFirstLogin,
-      @required this.mail,
-      @required this.createDate})
+  CurrentUser(String? firstName, String? lastName, String? userID,
+      {required this.biography,
+      required this.birthDate,
+      required this.isFirstLogin,
+      required this.mail,
+      required this.createDate})
       : super(firstName, lastName, userID);
 
   ///
@@ -37,7 +37,7 @@ class CurrentUser extends YazApiUser {
 
   ///user mail
   @JsonKey(name: 'user_mail', required: true, nullable: false)
-  String mail;
+  String? mail;
 
   // ///user address for purchase
   // @JsonKey(name: 'user_address', nullable: true, required: false)
@@ -45,7 +45,7 @@ class CurrentUser extends YazApiUser {
 
   ///the session is first for this user
   @JsonKey(name: 'user_first_login', required: true, nullable: false)
-  bool isFirstLogin;
+  bool? isFirstLogin;
 
   ///User Age
   int get age => DateTime.now().year - birthDate.year;

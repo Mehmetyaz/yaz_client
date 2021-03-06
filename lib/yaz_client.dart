@@ -33,10 +33,10 @@ export 'package:yaz_client/src/extensions/date_time.dart';
 
 class YazClient {
   static void init(
-      {@required String secret1,
-      @required String secret2,
-      @required String host,
-      @required String port}) {
+      {required String secret1,
+      required String secret2,
+      required String host,
+      required String port}) {
     EncryptionService().init(secret1, secret2);
     socketService.init(host, port);
   }

@@ -17,15 +17,15 @@ class YazApiUser {
 
   ///User First Name
   @JsonKey(name: "user_first_name")
-  final String firstName;
+  final String? firstName;
 
   ///User First Name
   @JsonKey(name: "user_last_name")
-  final String lastName;
+  final String? lastName;
 
   ///User ID
   @JsonKey(name: 'user_id', required: true)
-  final String userID;
+  final String? userID;
 
   ///User Full Name
   String get name => '$firstName $lastName';

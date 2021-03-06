@@ -10,17 +10,17 @@ YazChatMessage _$YazChatMessageFromJson(Map<String, dynamic> json) {
   $checkKeys(json,
       requiredKeys: const ['sender_id', 'receiver_id', 'receiver_seen']);
   return YazChatMessage(
-    json['sender_id'] as String,
-    json['receiver_id'] as String,
-    json['message_id'] as String,
-    json['message_content'] as String,
-    json['message_type'] as String,
-    json['conversation_id'] as String,
+    json['sender_id'] as String?,
+    json['receiver_id'] as String?,
+    json['message_id'] as String?,
+    json['message_content'] as String?,
+    json['message_type'] as String?,
+    json['conversation_id'] as String?,
   )
-    ..sendDate = UserModelStatics.dateFromJson(json['message_time'] as int)
-    ..receiveDate = UserModelStatics.dateFromJson(json['receive_time'] as int)
-    ..seenDate = UserModelStatics.dateFromJson(json['seen_time'] as int)
-    ..receiverSeen = json['receiver_seen'] as bool;
+    ..sendDate = UserModelStatics.dateFromJson(json['message_time'] as int?)
+    ..receiveDate = UserModelStatics.dateFromJson(json['receive_time'] as int?)
+    ..seenDate = UserModelStatics.dateFromJson(json['seen_time'] as int?)
+    ..receiverSeen = json['receiver_seen'] as bool?;
 }
 
 Map<String, dynamic> _$YazChatMessageToJson(YazChatMessage instance) =>
@@ -45,12 +45,13 @@ YazChatConversation _$YazChatConversationFromJson(Map<String, dynamic> json) {
     'total_message_count'
   ]);
   return YazChatConversation(
-    json['conversation_id'] as String,
-    json['starter_id'] as String,
-    json['receiver_id'] as String,
+    json['conversation_id'] as String?,
+    json['starter_id'] as String?,
+    json['receiver_id'] as String?,
   )
-    ..lastActivity = UserModelStatics.dateFromJson(json['last_activity'] as int)
-    ..totalMessageCount = json['total_message_count'] as int;
+    ..lastActivity =
+        UserModelStatics.dateFromJson(json['last_activity'] as int?)
+    ..totalMessageCount = json['total_message_count'] as int?;
 }
 
 Map<String, dynamic> _$YazChatConversationToJson(

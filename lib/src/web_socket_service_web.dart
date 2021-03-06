@@ -19,7 +19,7 @@ class WebSocketServiceWeb extends WebSocketServiceBase {
 
   static final WebSocketServiceWeb _instance = WebSocketServiceWeb._internal();
 
-  WebSocket socket;
+  WebSocket? socket;
 
   ///bağlantı
   Future<bool> connect([int i = 0]) async {
@@ -44,7 +44,7 @@ class WebSocketServiceWeb extends WebSocketServiceBase {
             close();
           });
 
-          socket?.onMessage?.listen((event) {
+          socket?.onMessage.listen((event) {
             var d = json.decode(event.data);
             // ignore: avoid_print
             // print("SOCKET LISTEN EVENT : $event  "
@@ -69,7 +69,7 @@ class WebSocketServiceWeb extends WebSocketServiceBase {
         }
 
         options.socketConnection.listen((event) {
-          options.downloadBytes += (event.length * 2) as int;
+          options.downloadBytes += ((event.length * 2) as int?)!;
           // ignore: avoid_print
 
           var dat = json.decode(event);
@@ -102,7 +102,7 @@ class WebSocketServiceWeb extends WebSocketServiceBase {
 
   @override
   closeSocket() {
-    socket.close();
+    socket!.close();
   }
 
   @override
