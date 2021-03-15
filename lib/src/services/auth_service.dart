@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:cryptography/cryptography.dart' show Nonce;
+import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yaz_client/src/models/user/current_user.dart';
 
@@ -13,7 +13,7 @@ import 'encryption.dart';
 AuthService authService = AuthService();
 
 ///
-class AuthService {
+class AuthService extends ChangeNotifier{
   ///Singleton
   factory AuthService() => _instance;
 
@@ -150,6 +150,9 @@ class AuthService {
 
   ///Login
   Future<bool> login(String mail, String pass, {bool remember = true}) async {
+
+    if (isLoggedIn) return isLoggedIn;
+
     if (!socketService.connected) {
       await socketService.connect();
     }
@@ -164,7 +167,7 @@ class AuthService {
 
     print(response.fullData);
 
-    if (response.isSuccess!) {
+    if (response.isSuccess) {
       if (remember) {
         await saveAuthData({'user_mail': mail, 'password': pass});
       }
@@ -178,7 +181,9 @@ class AuthService {
       authToken = response.data!['token'];
       socketService.options.token = authToken;
       isLoggedIn = true;
+      notifyListeners();
     } else {
+      notifyListeners();
       isLoggedIn = false;
     }
     return isLoggedIn;
@@ -194,5 +199,6 @@ class AuthService {
     userID = null;
     authToken = null;
     onLogOut();
+    notifyListeners();
   }
 }

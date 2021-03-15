@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../statics/statics.dart';
@@ -18,6 +18,16 @@ class CurrentUser extends YazApiUser {
       required this.createDate})
       : super(firstName, lastName, userID);
 
+  CurrentUser.create(
+      {required this.mail,
+      this.birthDate,
+      String? firstName,
+      String? lastName,
+      this.biography})
+      : createDate = DateTime.now(),
+        isFirstLogin = false,
+        super(firstName, lastName, Statics.getRandomId(30));
+
   ///
   @override
   factory CurrentUser.fromJson(Map<String, dynamic> json) =>
@@ -32,33 +42,33 @@ class CurrentUser extends YazApiUser {
       name: "create_date",
       fromJson: UserModelStatics.dateFromJson,
       toJson: UserModelStatics.dateToInt,
-      nullable: false)
+      )
   final DateTime createDate;
 
   ///user mail
-  @JsonKey(name: 'user_mail', required: true, nullable: false)
-  String? mail;
+  @JsonKey(name: 'user_mail', required: true, )
+  String mail;
 
   // ///user address for purchase
   // @JsonKey(name: 'user_address', nullable: true, required: false)
   // UserAddress address;
 
   ///the session is first for this user
-  @JsonKey(name: 'user_first_login', required: true, nullable: false)
-  bool? isFirstLogin;
+  @JsonKey(name: 'user_first_login', required: true, )
+  bool isFirstLogin;
 
   ///User Age
-  int get age => DateTime.now().year - birthDate.year;
+  int get age => DateTime.now().year - birthDate!.year;
 
   ///User Bio
   @JsonKey(name: 'user_biography', defaultValue: '')
-  String biography;
+  String? biography;
 
   ///User Birth Date
   @JsonKey(
       name: "birth_date",
       fromJson: UserModelStatics.dateFromJson,
-      nullable: false,
       toJson: UserModelStatics.dateToInt)
-  final DateTime birthDate;
+  final DateTime? birthDate;
+
 }

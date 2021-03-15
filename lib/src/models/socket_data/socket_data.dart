@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:cryptography/cryptography.dart';
-import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:yaz_client/src/services/encryption.dart';
 import 'package:yaz_client/src/statics/statics.dart';
@@ -62,11 +60,11 @@ class SocketData {
   Map<String, dynamic>? toJson() => fullData;
 
   ///
-  @JsonKey(name: "message_id", ignore: false, nullable: false)
+  @JsonKey(name: "message_id", ignore: false, )
   String? messageId;
 
   ///
-  @JsonKey(name: "message_type", ignore: false, nullable: false)
+  @JsonKey(name: "message_type", ignore: false, )
   String? type;
 
   ///
@@ -74,7 +72,13 @@ class SocketData {
   late bool schemeValid;
 
   ///
-  bool? get isSuccess => fullData!["success"];
+  bool get isSuccess {
+    try{
+      return fullData!["success"];
+    } on Exception {
+      return false;
+    }
+  }
 
   ///
   Map<String, dynamic>? get data {

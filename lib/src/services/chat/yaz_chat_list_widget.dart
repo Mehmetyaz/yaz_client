@@ -82,7 +82,7 @@ class YazChatListWidget<T> extends StatefulWidget {
   final Widget Function(BuildContext context, String? id, int index)
       errorBuilder;
 
-  final Future<T> Function(String? userId) userInfoLoader;
+  final Future<T> Function(String userId) userInfoLoader;
 
   final bool sliverList;
 
@@ -151,7 +151,8 @@ class _YazChatListWidgetState<T> extends State<YazChatListWidget<T>> {
     super.initState();
   }
 
-  _listener() {
+  _listener() async {
+    await Future.delayed(Duration(milliseconds: 50));
     if (mounted) {
       setState(() {});
     }

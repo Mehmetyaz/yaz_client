@@ -25,4 +25,9 @@ enum QueryType {
   ///
   @JsonValue(5)
   streamQuery,
+
+  ///
+  @JsonValue(6)
+  delete
+
 }

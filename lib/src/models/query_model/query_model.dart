@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+
 import 'package:json_annotation/json_annotation.dart';
 import 'package:yaz_client/src/statics/query_type.dart';
 import 'package:yaz_client/src/statics/sorting.dart';
@@ -41,22 +41,22 @@ class Query {
   Map<String, dynamic> toJson() => _$QueryToJson(this);
 
   ///Query Collection
-  @JsonKey(name: "collection", nullable: false)
+  @JsonKey(name: "collection", )
   String? collection;
 
   ///
-  @JsonKey(name: "query_type", nullable: false)
+  @JsonKey(name: "query_type", )
   QueryType? queryType;
 
   ///Query one document
-  @JsonKey(name: 'document', nullable: true)
+  @JsonKey(name: 'document', )
   Map<String, dynamic>? document;
 
-  @JsonKey(name: 'fields', nullable: true)
+  @JsonKey(name: 'fields',)
   Map<String, bool>? fields;
 
   ///Access token request type
-  @JsonKey(name: 'token', required: true, nullable: false, includeIfNull: false)
+  @JsonKey(name: 'token', required: true,  includeIfNull: false)
   String? token;
 
   ///

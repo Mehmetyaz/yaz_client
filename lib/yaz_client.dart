@@ -1,7 +1,5 @@
 library yaz_client;
 
-import 'package:flutter/material.dart';
-
 import 'package:yaz_client/src/services/encryption.dart';
 import "src/socket_service.dart" show socketService;
 
@@ -42,11 +40,6 @@ class YazClient {
   }
 }
 
-
-
-String greet(){
-  return "Hello word!";
-}
 
 
 

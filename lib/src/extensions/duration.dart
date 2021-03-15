@@ -11,5 +11,10 @@ extension DurationedInt on int {
     return Duration(seconds: this);
   }
 
-
+  ///
+  Duration get minutes {
+    return Duration(minutes: this);
+  }
+  
+  
 }

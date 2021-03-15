@@ -120,7 +120,8 @@ class YazChatService extends ChangeNotifier {
                   YazChatConversation.fromJson(data["conversation_data"]));
             }
             _conversations[chat]!
-              .._handleOwnMessage(YazChatMessage.fromJson(data.data!["message"]))
+              .._handleOwnMessage(
+                  YazChatMessage.fromJson(data.data!["message"]))
               .._update(
                   YazChatConversation.fromJson(data["conversation_data"]));
             _sort();
@@ -166,10 +167,10 @@ class YazChatService extends ChangeNotifier {
 
     print("CHAT LIST DATA :  :  : $chatListData");
 
-    chatListData.addAll(chatListData2);
+    chatListData!.addAll(chatListData2!);
 
     return (chatListData)
-        .map<YazChatConversation>((e) => YazChatConversation.fromJson(e!))
+        .map<YazChatConversation>((e) => YazChatConversation.fromJson(e))
         .toList();
   }
 
@@ -381,8 +382,10 @@ class YazChatConversation extends Comparable with ChangeNotifier {
 
   @override
   int compareTo(other) {
-    // TODO: implement compareTo
-    throw UnimplementedError();
+    if (other is YazChatConversation) {
+      return this.lastActivity!.compareTo(other.lastActivity!);
+    }
+    return -1;
   }
 
   Future<void> _cache() async {
@@ -393,10 +396,9 @@ class YazChatConversation extends Comparable with ChangeNotifier {
         equals: {CONVERSATION_ID: chatId},
         limit: 5));
     messageList.addAll(chatId,
-        list.map<YazChatMessage>((e) => YazChatMessage.fromJson(e!)).toList());
+        list!.map<YazChatMessage>((e) => YazChatMessage.fromJson(e)).toList());
 
     _allSeen = messages!.any((element) => !element.receiverSeen!);
-    print("ALL SEEN SETTET: ${_allSeen}");
     return null;
   }
 
@@ -431,14 +433,14 @@ class YazChatConversation extends Comparable with ChangeNotifier {
           CONVERSATION_ID: chatId
         }));
 
-        if (_nMessages.length == 0) {
+        if (_nMessages!.length == 0) {
           hasMore = false;
         }
 
         messageList.addAll(
             chatId,
             _nMessages
-                .map<YazChatMessage>((e) => YazChatMessage.fromJson(e!))
+                .map<YazChatMessage>((e) => YazChatMessage.fromJson(e))
                 .toList(),
             last: true);
         loaded = false;
@@ -575,7 +577,7 @@ class YazChatConversation extends Comparable with ChangeNotifier {
     yazChatService._notify();
     var op = await socketService
         .customOperation(SEND_MESSAGE_OPERATION, {"message": message.toJson()});
-    if (op.isSuccess!) {
+    if (op.isSuccess) {
       message._notifySend();
     }
   }

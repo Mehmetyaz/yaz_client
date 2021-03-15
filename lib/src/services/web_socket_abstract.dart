@@ -1,8 +1,7 @@
 import 'dart:async'
-    show Future, FutureOr, Stream, StreamController, StreamSubscription, StreamTransformer;
+    show Future, Stream, StreamController, StreamSubscription, StreamTransformer;
 import 'dart:convert';
 
-import 'package:cryptography/cryptography.dart' show Nonce;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -267,7 +266,7 @@ abstract class WebSocketServiceBase {
   }
 
   ///List Query
-  Future<List<Map<String, dynamic>?>> listQuery(Query _query,
+  Future<List<Map<String, dynamic>>?> listQuery(Query _query,
       {int trying = 0}) async {
     if (connected) {
       _query
@@ -276,8 +275,8 @@ abstract class WebSocketServiceBase {
 
       var dat = await sendAndWaitMessage(SocketData.create(
           data: <String, dynamic>{'query': _query}, type: "query"));
-      if (dat.isSuccess!) {
-        var _process = <Map<String, dynamic>?>[];
+      if (dat.isSuccess) {
+        var _process = <Map<String, dynamic>>[];
 
         for (var _p in dat.data!['list']) {
           _process.add(_p);
@@ -334,6 +333,34 @@ abstract class WebSocketServiceBase {
       }
     }
   }
+
+
+
+
+  ///Exists query
+  Future<bool?> delete(Query _query, {int trying = 0}) async {
+    if (connected) {
+      _query
+        ..queryType = QueryType.delete
+        ..token = options.token;
+
+      var dat = await sendAndWaitMessage(SocketData.create(
+          data: <String, dynamic>{'query': _query}, type: "query"));
+
+      print("deleted : ${dat.isSuccess}");
+      return dat.isSuccess;
+    } else {
+      if (trying < 5) {
+        await connect();
+        return exists(_query, trying: trying++);
+      } else {
+        return null;
+      }
+    }
+  }
+
+
+
 
   ///bağlantı
   Future<bool> connect([int i = 0]);
@@ -477,7 +504,7 @@ abstract class WebSocketServiceBase {
             }),
             encrypted: false);
 
-        if (stage2Data.isSuccess != null && !stage2Data.isSuccess!) {
+        if ( !stage2Data.isSuccess) {
           throw Exception('Unsuccessful connection ${stage2Data.isSuccess}');
         }
 
