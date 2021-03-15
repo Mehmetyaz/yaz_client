@@ -20,7 +20,7 @@ Query _$QueryFromJson(Map<String, dynamic> json) {
     limit: json['limit'] as int? ?? 100,
     offset: json['offset'] as int? ?? 0,
     token: json['token'] as String?,
-    queryType: _$enumDecodeNullable(_$QueryTypeEnumMap, json['query_type']),
+    queryType: _$enumDecode(_$QueryTypeEnumMap, json['query_type']),
     document: json['document'] as Map<String, dynamic>?,
   )..fields = (json['fields'] as Map<String, dynamic>?)?.map(
       (k, e) => MapEntry(k, e as bool),
@@ -100,4 +100,5 @@ const _$QueryTypeEnumMap = {
   QueryType.update: 3,
   QueryType.exists: 4,
   QueryType.streamQuery: 5,
+  QueryType.delete: 6,
 };

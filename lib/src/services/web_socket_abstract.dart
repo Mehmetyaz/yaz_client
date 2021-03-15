@@ -344,6 +344,8 @@ abstract class WebSocketServiceBase {
         ..queryType = QueryType.delete
         ..token = options.token;
 
+      print(_query.toJson());
+
       var dat = await sendAndWaitMessage(SocketData.create(
           data: <String, dynamic>{'query': _query}, type: "query"));
 

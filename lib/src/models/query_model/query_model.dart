@@ -2,6 +2,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:yaz_client/src/statics/query_type.dart';
 import 'package:yaz_client/src/statics/sorting.dart';
+import 'package:yaz_client/yaz_client.dart';
 
 part 'query_model.g.dart';
 
@@ -31,7 +32,6 @@ class Query {
       this.fields = const <String, bool>{},
       this.limit = 100,
       this.offset = 0,
-      this.queryType,
       this.document = const <String, dynamic>{}});
 
   ///From Json
