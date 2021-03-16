@@ -1,5 +1,10 @@
 import 'dart:async'
-    show Future, Stream, StreamController, StreamSubscription, StreamTransformer;
+    show
+        Future,
+        Stream,
+        StreamController,
+        StreamSubscription,
+        StreamTransformer;
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -182,17 +187,17 @@ abstract class WebSocketServiceBase {
 
   /// Update Document Data
   /// Use mongo db style update
-  Future<SocketData> updateDocument(Query query, {int trying = 0}) async {
+  Future<SocketData> updateDocument(
+      QueryBuilder queryBuilder, Map<String, dynamic> update,
+      {int trying = 0}) async {
     if (connected) {
-      query
-        ..queryType = QueryType.update
-        ..token = options.token;
+      var query = queryBuilder.toQuery(QueryType.update, token: options.token);
       return sendAndWaitMessage(SocketData.create(
           data: <String, dynamic>{"query": query.toJson()}, type: "query"));
     } else {
       if (trying < 5) {
         await connect();
-        return updateDocument(query, trying: trying++);
+        return updateDocument(queryBuilder, update, trying: trying++);
       } else {
         return SocketData.fromFullData(
             {'success': false, "reason": "No Connection"});
@@ -210,12 +215,12 @@ abstract class WebSocketServiceBase {
   }
 
   ///Query one document
-  Future<SocketData> query(Query _query,
-      {int trying = 0, String? customID}) async {
+  Future<SocketData> query(QueryBuilder _queryBuilder,
+      {int trying = 0, String? customID, bool stream = false}) async {
     if (connected) {
-      _query
-        ..queryType ??= QueryType.query
-        ..token = options.token;
+      var _query = _queryBuilder.toQuery(
+          stream ? QueryType.streamQuery : QueryType.query,
+          token: options.token);
       return sendAndWaitMessage(SocketData.create(
           data: <String, dynamic>{'query': _query},
           type: "query",
@@ -223,7 +228,7 @@ abstract class WebSocketServiceBase {
     } else {
       if (trying < 5) {
         await connect();
-        return query(_query, trying: trying++, customID: customID);
+        return query(_queryBuilder, trying: trying++, customID: customID);
       } else {
         return SocketData.fromFullData(
             {'success': false, "reason": "No Connection"});
@@ -232,7 +237,7 @@ abstract class WebSocketServiceBase {
   }
 
   ///
-  SocketDataListener listenDocument(Query _query, {int trying = 0}) {
+  SocketDataListener listenDocument(QueryBuilder _query, {int trying = 0}) {
     return SocketDataListener(_query);
   }
 
@@ -244,12 +249,13 @@ abstract class WebSocketServiceBase {
 
   ///Insert query
   ///only 'collection' field in the parameter [_query] must be declared
-  Future<SocketData> insertQuery(Query _query, {int trying = 0}) async {
+  Future<SocketData> insertQuery(
+      QueryBuilder _queryBuilder, Map<String, dynamic> document,
+      {int trying = 0}) async {
     if (connected) {
-      _query
-        ..queryType = QueryType.insert
-        ..token = options.token;
-
+      var _query =
+          _queryBuilder.toQuery(QueryType.insert, token: options.token);
+      _query.document = document;
       return sendAndWaitMessage(
           SocketData.create(
               data: <String, dynamic>{'query': _query}, type: "query"),
@@ -257,7 +263,7 @@ abstract class WebSocketServiceBase {
     } else {
       if (trying < 5) {
         await connect();
-        return insertQuery(_query, trying: trying++);
+        return insertQuery(_queryBuilder, document, trying: trying++);
       } else {
         return SocketData.fromFullData(
             {'success': false, "reason": "No Connection"});
@@ -266,12 +272,11 @@ abstract class WebSocketServiceBase {
   }
 
   ///List Query
-  Future<List<Map<String, dynamic>>?> listQuery(Query _query,
+  Future<List<Map<String, dynamic>>?> listQuery(QueryBuilder _queryBuilder,
       {int trying = 0}) async {
     if (connected) {
-      _query
-        ..queryType = QueryType.listQuery
-        ..token = options.token;
+      var _query = _queryBuilder.toQuery(QueryType.listQuery ,token: options.token);
+
 
       var dat = await sendAndWaitMessage(SocketData.create(
           data: <String, dynamic>{'query': _query}, type: "query"));
@@ -290,7 +295,7 @@ abstract class WebSocketServiceBase {
     } else {
       if (trying < 5) {
         await connect();
-        return listQuery(_query, trying: trying++);
+        return listQuery(_queryBuilder, trying: trying++);
       } else {
         return [];
       }
@@ -313,11 +318,9 @@ abstract class WebSocketServiceBase {
   // }
 
   ///Exists query
-  Future<bool?> exists(Query _query, {int trying = 0}) async {
+  Future<bool?> exists(QueryBuilder _queryBuilder, {int trying = 0}) async {
     if (connected) {
-      _query
-        ..queryType = QueryType.exists
-        ..token = options.token;
+      var _query = _queryBuilder.toQuery(QueryType.exists ,token: options.token);
 
       var dat = await sendAndWaitMessage(SocketData.create(
           data: <String, dynamic>{'query': _query}, type: "query"));
@@ -327,22 +330,18 @@ abstract class WebSocketServiceBase {
     } else {
       if (trying < 5) {
         await connect();
-        return exists(_query, trying: trying++);
+        return exists(_queryBuilder, trying: trying++);
       } else {
         return null;
       }
     }
   }
 
-
-
-
   ///Exists query
-  Future<bool?> delete(Query _query, {int trying = 0}) async {
+  Future<bool?> delete(QueryBuilder _queryBuilder, {int trying = 0}) async {
     if (connected) {
-      _query
-        ..queryType = QueryType.delete
-        ..token = options.token;
+      var _query = _queryBuilder.toQuery(QueryType.delete ,token: options.token);
+
 
       print(_query.toJson());
 
@@ -354,15 +353,12 @@ abstract class WebSocketServiceBase {
     } else {
       if (trying < 5) {
         await connect();
-        return exists(_query, trying: trying++);
+        return exists(_queryBuilder, trying: trying++);
       } else {
         return null;
       }
     }
   }
-
-
-
 
   ///bağlantı
   Future<bool> connect([int i = 0]);
@@ -506,7 +502,7 @@ abstract class WebSocketServiceBase {
             }),
             encrypted: false);
 
-        if ( !stage2Data.isSuccess) {
+        if (!stage2Data.isSuccess) {
           throw Exception('Unsuccessful connection ${stage2Data.isSuccess}');
         }
 

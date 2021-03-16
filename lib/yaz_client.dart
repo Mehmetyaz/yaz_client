@@ -8,7 +8,8 @@ export 'package:yaz_client/src/models/stream_socket_data.dart'
 export "src/socket_service.dart" show socketService;
 export 'src/extensions/date_time.dart';
 export 'src/extensions/duration.dart';
-export 'package:yaz_client/src/models/query_model/query_model.dart' show Query;
+export 'package:yaz_client/src/models/query_model/query_model.dart'
+    show collection;
 export 'package:yaz_client/src/models/socket_data/socket_data.dart'
     show SocketData;
 export 'package:yaz_client/src/models/user/current_user.dart' show CurrentUser;
@@ -39,7 +40,3 @@ class YazClient {
     socketService.init(host, port);
   }
 }
-
-
-
-

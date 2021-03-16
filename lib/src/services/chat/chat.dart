@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:yaz_client/src/models/query_model/query_model.dart';
 import 'package:yaz_client/src/statics/chat_strings.dart';
 import 'package:yaz_client/yaz_client.dart';
 import '../message_list.dart';
@@ -40,19 +41,24 @@ class YazChatService extends ChangeNotifier {
 
     if (ex.isNotEmpty) return ex.first;
 
-    var existStarted = socketService.exists(Query.create(CHAT_COLLECTIONS,
-        equals: {"starter_id": authService.userID}));
+    collection(CHAT_COLLECTIONS)
+      ..where("receiver_id", isEqualTo: authService.userID);
+    var existStarted = socketService.exists(collection(CHAT_COLLECTIONS)
+      ..where("starter_id", isEqualTo: authService.userID));
 
-    var existsReceived = socketService.exists(Query.create(CHAT_COLLECTIONS,
-        equals: {"receiver_id": authService.userID}));
+    var existsReceived = socketService.exists(collection(CHAT_COLLECTIONS)
+      ..where("receiver_id", isEqualTo: authService.userID));
 
     var l = [await existStarted, await existsReceived];
 
     if (l.contains(true)) {
-      var newChatMe = await socketService.query(Query.create(CHAT_COLLECTIONS,
-          equals: (await existsReceived)!
-              ? {"receiver_id": authService.userID}
-              : {"starter_id": authService.userID}));
+      var builder = collection(CHAT_COLLECTIONS);
+      if ((await existsReceived)!) {
+        builder.where("receiver_id", isEqualTo: authService.userID);
+      } else {
+        builder.where("starter_id", isEqualTo: authService.userID);
+      }
+      var newChatMe = await socketService.query(builder);
 
       print("STARTING CHAT: ${newChatMe.data}");
 
@@ -152,18 +158,14 @@ class YazChatService extends ChangeNotifier {
 
   Future<List<YazChatConversation>> _getAllConversations() async {
     var chatListData =
-        await socketService.listQuery(Query.create(CHAT_COLLECTIONS, equals: {
-      "starter_id": authService.userID,
-    }, sorts: <String, Sorting>{
-      LAST_ACTIVITY: Sorting.descending
-    }));
+        await socketService.listQuery(collection(CHAT_COLLECTIONS)
+          ..where("starter_id", isEqualTo: authService.userID)
+          ..sort(LAST_ACTIVITY, Sorting.descending));
 
     var chatListData2 =
-        await socketService.listQuery(Query.create(CHAT_COLLECTIONS, equals: {
-      "receiver_id": authService.userID,
-    }, sorts: <String, Sorting>{
-      LAST_ACTIVITY: Sorting.descending
-    }));
+        await socketService.listQuery(collection(CHAT_COLLECTIONS)
+          ..where("receiver_id", isEqualTo: authService.userID)
+          ..sort(LAST_ACTIVITY, Sorting.descending));
 
     print("CHAT LIST DATA :  :  : $chatListData");
 
@@ -389,12 +391,10 @@ class YazChatConversation extends Comparable with ChangeNotifier {
   }
 
   Future<void> _cache() async {
-    var list = await socketService.listQuery(Query.create(MESSAGE_COLLECTION,
-        sorts: <String, Sorting>{
-          MESSAGE_TIME: Sorting.descending,
-        },
-        equals: {CONVERSATION_ID: chatId},
-        limit: 5));
+    var list = await socketService.listQuery(collection(MESSAGE_COLLECTION)
+        .where(CONVERSATION_ID, isEqualTo: chatId)
+        .sort(MESSAGE_TIME, Sorting.descending)
+        .limit(5));
     messageList.addAll(chatId,
         list!.map<YazChatMessage>((e) => YazChatMessage.fromJson(e)).toList());
 
@@ -423,15 +423,17 @@ class YazChatConversation extends Comparable with ChangeNotifier {
       if (totalMessageCount! > messageCount) {
         loaded = true;
         notifyListeners();
-        var _nMessages = await socketService
-            .listQuery(Query.create(MESSAGE_COLLECTION, limit: 100, filters: {
-          "lt": {
-            MESSAGE_TIME:
-                messageList[chatId]!.last.sendDate!.millisecondsSinceEpoch
-          }
-        }, equals: {
-          CONVERSATION_ID: chatId
-        }));
+
+        var _nMessages = await socketService.listQuery(
+            collection(MESSAGE_COLLECTION)
+                .where(CONVERSATION_ID, isEqualTo: chatId)
+                .sort(MESSAGE_TIME, Sorting.descending)
+                .filter(MESSAGE_TIME,
+                    isLessThan: messageList[chatId]!
+                        .last
+                        .sendDate!
+                        .millisecondsSinceEpoch)
+                .limit(100));
 
         if (_nMessages!.length == 0) {
           hasMore = false;
