@@ -20,11 +20,13 @@ Query _$QueryFromJson(Map<String, dynamic> json) {
     limit: json['limit'] as int? ?? 100,
     offset: json['offset'] as int? ?? 0,
     token: json['token'] as String?,
-    queryType: _$enumDecode(_$QueryTypeEnumMap, json['query_type']),
+    queryType: _$enumDecodeNullable(_$QueryTypeEnumMap, json['query_type']),
     document: json['document'] as Map<String, dynamic>?,
-  )..fields = (json['fields'] as Map<String, dynamic>?)?.map(
+  )
+    ..fields = (json['fields'] as Map<String, dynamic>?)?.map(
       (k, e) => MapEntry(k, e as bool),
-    );
+    )
+    ..notEquals = json['not_equals'] as Map<String, dynamic>? ?? {};
 }
 
 Map<String, dynamic> _$QueryToJson(Query instance) {
@@ -48,6 +50,7 @@ Map<String, dynamic> _$QueryToJson(Query instance) {
   val['filters'] = instance.filters;
   val['equals'] = instance.equals;
   val['sorts'] = instance.sorts.map((k, e) => MapEntry(k, _$SortingEnumMap[e]));
+  val['not_equals'] = instance.notEquals;
   return val;
 }
 

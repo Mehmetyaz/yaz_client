@@ -96,9 +96,53 @@ class Query {
   Map<String, dynamic> notEquals = <String, dynamic>{};
 }
 
-/// Start creating collection
+/// Start creating [QueryBuilder]
+///
+///
+/// collection(Which Collection)  // Must start [collection]
+///     .where(Document Fields Equal to what?)
+///     .sort(In what order)
+///     .filter (Which conditions fit)
+///     .limit(Max Response Length)
+///     .offset(How Many Skip On Start)
+///     .fields(Which Fields Are Included?)
+///
+/// See this functions documents for more information
+///
+/// example :
+//    Oldest (alphabetical between equals) active user age
+/// ```
+/// var queryBuilder = collection("users")
+///       .sort("name" , Sorting.ascending)
+///       .sort("age" , Sorting.descending)
+///       .where("active"  , isEqualTo: true)
+///       .fields(includes: ["age" , "name" , "user_id"] , excludes: ["mail_address"])
+/// ```
+///
 QueryBuilder collection(String collection) => QueryBuilder._create(collection);
 
+/// Start creating [QueryBuilder]
+///
+///
+/// collection(Which Collection)    // Must start [collection]
+///     .where(Document Fields Equal to what?)
+///     .sort(In what order)
+///     .filter (Which conditions fit)
+///     .limit(Max Response Length)
+///     .offset(How Many Skip On Start)
+///     .fields(Which Fields Are Included?)
+///
+/// See this functions documents for more information
+///
+/// example :
+//    Oldest (alphabetical between equals) active user age
+/// ```
+/// var queryBuilder = collection("users")
+///       .sort("name" , Sorting.ascending)
+///       .sort("age" , Sorting.descending)
+///       .where("active"  , isEqualTo: true)
+///       .fields(includes: ["age" , "name" , "user_id"] , excludes: ["mail_address"])
+/// ```
 ///
 class QueryBuilder {
   QueryBuilder._create(this._collection);
@@ -109,7 +153,8 @@ class QueryBuilder {
   /// where("arg.1" , isEqualTo: "2") => {"a" : "d" , "arg" : { "1" : "2"}}
   ///
   /// Only use equalTo or notEqualTo
-  QueryBuilder where(String fieldName, {dynamic isEqualTo, dynamic isNotEqualTo}) {
+  QueryBuilder where(String fieldName,
+      {dynamic isEqualTo, dynamic isNotEqualTo}) {
     assert(isEqualTo == null || isNotEqualTo == null, "Only use one");
     assert(isNotEqualTo != null || isEqualTo != null, "Use one condition");
     if (isEqualTo != null) {

@@ -183,15 +183,34 @@ abstract class WebSocketServiceBase {
     }
   }
 
+  /// Sending data to server
+  /// Data must be String utf8 encoded
   void sendMessage(String data);
 
   /// Update Document Data
-  /// Use mongo db style update
+  /// example for change user name for user that
+  /// his mail address is  "mehmedyaz@gmail.com":
+  ///
+  /// updateDocument(QueryBuilder , UpdateData) ;
+  ///
+  /// ```
+  /// var queryBuilder = collection("users")
+  ///               .where("user_mail" , isEqualTo: "mehmedyaz@gmail.com");
+  /// updateDocument( queryBuilder , {
+  ///    "\$set" : {
+  ///       "user_name" : "Mehmet"
+  ///    }
+  /// })
+  /// ```
+  ///
+  /// Using mongo db update syntax
+  /// https://docs.mongodb.com/manual/reference/method/db.collection.update/#db.collection.update
   Future<SocketData> updateDocument(
       QueryBuilder queryBuilder, Map<String, dynamic> update,
       {int trying = 0}) async {
     if (connected) {
       var query = queryBuilder.toQuery(QueryType.update, token: options.token);
+      query.update = update;
       return sendAndWaitMessage(SocketData.create(
           data: <String, dynamic>{"query": query.toJson()}, type: "query"));
     } else {
@@ -214,7 +233,16 @@ abstract class WebSocketServiceBase {
     return sendAndWaitMessage(SocketData.create(data: args, type: name));
   }
 
-  ///Query one document
+  /// Query one document in a collection
+  ///
+  /// query(QueryBuilder)
+  /// listenDocument(collection("my_col").[where].[filter].[sort].[limit].[offset])
+  /// see [collection]  function document
+  /// for learn that , How to create [QueryBuilder]
+  /// return [Future<SocketData>]
+  ///
+  /// can check query success in [SocketData] instance member of [isSuccess]
+  /// if query success can found document in [SocketData] instance member of [data]
   Future<SocketData> query(QueryBuilder _queryBuilder,
       {int trying = 0, String? customID, bool stream = false}) async {
     if (connected) {
@@ -228,7 +256,8 @@ abstract class WebSocketServiceBase {
     } else {
       if (trying < 5) {
         await connect();
-        return query(_queryBuilder, trying: trying++, customID: customID);
+        return query(_queryBuilder,
+            trying: trying++, customID: customID, stream: stream);
       } else {
         return SocketData.fromFullData(
             {'success': false, "reason": "No Connection"});
@@ -236,7 +265,15 @@ abstract class WebSocketServiceBase {
     }
   }
 
+  /// Listen changes one document in a collection
   ///
+  /// listenDocument(QueryBuilder)
+  /// listenDocument(collection("my_col").[where].[filter].[sort].[limit].[offset])
+  /// see [collection]  function document
+  /// for learn that , How to create [QueryBuilder]
+  /// return [SocketDataListener]
+  ///
+  /// for listening starting can call [listen] method of [SocketDataListener]
   SocketDataListener listenDocument(QueryBuilder _query, {int trying = 0}) {
     return SocketDataListener(_query);
   }
@@ -247,8 +284,16 @@ abstract class WebSocketServiceBase {
     return ChatDataListener().listen(onData);
   }
 
-  ///Insert query
-  ///only 'collection' field in the parameter [_query] must be declared
+  /// Insert one document in a collection
+  ///
+  /// insertQuery(QueryBuilder , DocumentData)
+  /// insertQuery(collection("my_col").[where].[filter].[sort].[limit].[offset] , [Map])
+  /// see [collection]  function document
+  /// for learn that , How to create [QueryBuilder]
+  /// return [Future<SocketData>]
+  ///
+  /// can check success in [SocketData] instance member of [isSuccess]
+  /// function will not return inserted document anywhere
   Future<SocketData> insertQuery(
       QueryBuilder _queryBuilder, Map<String, dynamic> document,
       {int trying = 0}) async {
@@ -271,12 +316,24 @@ abstract class WebSocketServiceBase {
     }
   }
 
-  ///List Query
+  /// Query multiple documents in a collection
+  ///
+  ///
+  /// listQuery(QueryBuilder)
+  /// listQuery(collection("my_col").[where].[filter].[sort].[limit].[offset])
+  /// see [collection]  function document
+  /// for learn that , How to create [QueryBuilder]
+  /// return [Future<List<Map<String, dynamic>>?>]
+  ///
+  /// if query success function return each document as [Map]
+  /// Document [Map] is not be null, but List is may be null
+  /// If [List] is null , query doesn't success,
+  /// But if [List] is empty , query success and result 0 match
   Future<List<Map<String, dynamic>>?> listQuery(QueryBuilder _queryBuilder,
       {int trying = 0}) async {
     if (connected) {
-      var _query = _queryBuilder.toQuery(QueryType.listQuery ,token: options.token);
-
+      var _query =
+          _queryBuilder.toQuery(QueryType.listQuery, token: options.token);
 
       var dat = await sendAndWaitMessage(SocketData.create(
           data: <String, dynamic>{'query': _query}, type: "query"));
@@ -317,10 +374,20 @@ abstract class WebSocketServiceBase {
   //   }
   // }
 
-  ///Exists query
+  /// Query documents is exists in a collection
+  ///
+  /// exists(QueryBuilder)
+  /// exists(collection("my_col").[where].[filter].[sort].[limit].[offset])
+  /// see [collection]  function document
+  /// for learn that , How to create [QueryBuilder]
+  /// return [Future<bool?>]
+  ///
+  /// if query success function return document exists
+  /// If return value is null , query doesn't success,
   Future<bool?> exists(QueryBuilder _queryBuilder, {int trying = 0}) async {
     if (connected) {
-      var _query = _queryBuilder.toQuery(QueryType.exists ,token: options.token);
+      var _query =
+          _queryBuilder.toQuery(QueryType.exists, token: options.token);
 
       var dat = await sendAndWaitMessage(SocketData.create(
           data: <String, dynamic>{'query': _query}, type: "query"));
@@ -337,11 +404,20 @@ abstract class WebSocketServiceBase {
     }
   }
 
-  ///Exists query
+  /// Delete one document in a collection
+  ///
+  /// delete(QueryBuilder)
+  /// delete(collection("my_col").[where].[filter].[sort].[limit].[offset])
+  /// see [collection]  function document
+  /// for learn that , How to create [QueryBuilder]
+  /// return [Future<bool?>]
+  ///
+  /// if query success function return document deleted
+  /// If return value is null , query doesn't success,
   Future<bool?> delete(QueryBuilder _queryBuilder, {int trying = 0}) async {
     if (connected) {
-      var _query = _queryBuilder.toQuery(QueryType.delete ,token: options.token);
-
+      var _query =
+          _queryBuilder.toQuery(QueryType.delete, token: options.token);
 
       print(_query.toJson());
 
