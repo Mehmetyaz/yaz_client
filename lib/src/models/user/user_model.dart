@@ -25,7 +25,7 @@ class YazApiUser {
 
   ///User ID
   @JsonKey(name: 'user_id', required: true)
-  final String? userID;
+  final String userID;
 
   ///User Full Name
   String get name => '$firstName $lastName';

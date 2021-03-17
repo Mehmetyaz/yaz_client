@@ -229,7 +229,6 @@ abstract class WebSocketServiceBase {
     if (useToken) {
       args["token"] = options.token;
     }
-    print(args);
     return sendAndWaitMessage(SocketData.create(data: args, type: name));
   }
 
@@ -344,7 +343,7 @@ abstract class WebSocketServiceBase {
           _process.add(_p);
         }
 
-        print("LIST QUERY: ${_process.length}");
+
         return _process;
       } else {
         return [];
@@ -392,7 +391,7 @@ abstract class WebSocketServiceBase {
       var dat = await sendAndWaitMessage(SocketData.create(
           data: <String, dynamic>{'query': _query}, type: "query"));
 
-      print("exists : ${dat.data}");
+
       return dat.data!['exists'];
     } else {
       if (trying < 5) {
@@ -419,12 +418,12 @@ abstract class WebSocketServiceBase {
       var _query =
           _queryBuilder.toQuery(QueryType.delete, token: options.token);
 
-      print(_query.toJson());
+
 
       var dat = await sendAndWaitMessage(SocketData.create(
           data: <String, dynamic>{'query': _query}, type: "query"));
 
-      print("deleted : ${dat.isSuccess}");
+
       return dat.isSuccess;
     } else {
       if (trying < 5) {
@@ -600,6 +599,9 @@ abstract class WebSocketServiceBase {
 
         var secondID = Statics.getRandomId(30);
 
+
+
+
         var da = SocketData.fromFullData({
           'message_id': secondID,
           'message_type': 'c_nonce_sending',
@@ -634,8 +636,6 @@ abstract class WebSocketServiceBase {
         return false;
       }
     } on MissingRequiredKeysException catch (e) {
-      MissingRequiredKeysException a = e;
-      print(a.missingKeys);
       return false;
     } on Exception catch (e) {
       // ignore: avoid_print

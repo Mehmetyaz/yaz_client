@@ -13,7 +13,7 @@ import 'encryption.dart';
 AuthService authService = AuthService();
 
 ///
-class AuthService extends ChangeNotifier{
+class AuthService extends ChangeNotifier {
   ///Singleton
   factory AuthService() => _instance;
 
@@ -135,22 +135,40 @@ class AuthService extends ChangeNotifier{
   }
 
   ///Register User
-  Future<Map<String, dynamic>?> register(Map<String, dynamic> user) async {
-    if (!socketService.connected) {
-      await socketService.connect();
-    }
+  Future<CurrentUser?> register(String mail, String password,
+      {String? name,
+      String? lastName,
+      DateTime? birthDate,
+      String? biography}) async {
+    try {
+      if (!socketService.connected) {
+        await socketService.connect();
+      }
+      var _us = CurrentUser.create(
+          mail: mail,
+          firstName: name,
+          lastName: lastName,
+          birthDate: birthDate,
+          biography: biography);
 
-    var dat = await socketService.sendAndWaitMessage(SocketData.create(
-        data: user,
-        type: "register",
-        messageId: socketService.options.deviceID));
-    await dat.decrypt();
-    return dat.data;
+      var user = _us.toJson();
+
+      user["password"] = password;
+      var dat = await socketService.sendAndWaitMessage(SocketData.create(
+          data: user,
+          type: "register",
+          messageId: socketService.options.deviceID));
+      await dat.decrypt();
+
+      var resUs = CurrentUser.fromJson(dat.data!["user"]);
+      return resUs;
+    } on Exception {
+      return null;
+    }
   }
 
   ///Login
   Future<bool> login(String mail, String pass, {bool remember = true}) async {
-
     if (isLoggedIn) return isLoggedIn;
 
     if (!socketService.connected) {
@@ -165,7 +183,7 @@ class AuthService extends ChangeNotifier{
         },
         type: "login"));
 
-    print(response.fullData);
+
 
     if (response.isSuccess) {
       if (remember) {

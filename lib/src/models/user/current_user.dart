@@ -10,7 +10,7 @@ part 'current_user.g.dart';
 @JsonSerializable()
 class CurrentUser extends YazApiUser {
   ///
-  CurrentUser(String? firstName, String? lastName, String? userID,
+  CurrentUser(String? firstName, String? lastName, String userID,
       {required this.biography,
       required this.birthDate,
       required this.isFirstLogin,

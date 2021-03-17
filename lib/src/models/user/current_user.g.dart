@@ -12,7 +12,7 @@ CurrentUser _$CurrentUserFromJson(Map<String, dynamic> json) {
   return CurrentUser(
     json['user_first_name'] as String?,
     json['user_last_name'] as String?,
-    json['user_id'] as String?,
+    json['user_id'] as String,
     biography: json['user_biography'] as String? ?? '',
     birthDate: UserModelStatics.dateFromJson(json['birth_date'] as int?),
     isFirstLogin: json['user_first_login'] as bool,

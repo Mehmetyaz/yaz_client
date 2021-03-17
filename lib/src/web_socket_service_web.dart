@@ -30,7 +30,7 @@ class WebSocketServiceWeb extends WebSocketServiceBase {
     }
     try {
       // ignore: avoid_print
-      print('CONNECTION ${socket?.readyState ?? 'null'}');
+      print('CONNECTION STATE ${socket?.readyState ?? 'null'}');
 
       if (socket == null || socket?.readyState == 3) {
         socket = WebSocket(
@@ -45,10 +45,9 @@ class WebSocketServiceWeb extends WebSocketServiceBase {
           });
 
           socket?.onMessage.listen((event) {
+
             var d = json.decode(event.data);
             // ignore: avoid_print
-            // print("SOCKET LISTEN EVENT : $event  "
-            //     "\n   ready: ${socket?.readyState}");
             if (d.runtimeType != List && d["data"] != null) {
               // print(
               //     "ON OPEN::::"
@@ -63,7 +62,9 @@ class WebSocketServiceWeb extends WebSocketServiceBase {
           }, onDone: () {
             connected = false;
           });
-        } on Exception {
+        } on Exception catch(e,s) {
+          print("HATA: $e \n $s");
+
           socket = null;
           await connect(i++);
         }
@@ -80,6 +81,7 @@ class WebSocketServiceWeb extends WebSocketServiceBase {
           }
         });
         connected = true;
+
         return await requestConnection();
       } else {
         if (i < 6) {
