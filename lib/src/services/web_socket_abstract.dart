@@ -137,6 +137,7 @@ abstract class WebSocketServiceBase {
     if (connected) {
       try {
         if (encrypted) {
+          print(json.encode(data.fullData));
           await data.encrypt();
 
           var _sendingData = json.encode(data);
@@ -230,6 +231,34 @@ abstract class WebSocketServiceBase {
       args["token"] = options.token;
     }
     return sendAndWaitMessage(SocketData.create(data: args, type: name));
+  }
+
+  /// Query one document in a collection
+  ///
+  /// query(QueryBuilder)
+  /// listenDocument(collection("my_col").[where].[filter].[sort].[limit].[offset])
+  /// see [collection]  function document
+  /// for learn that , How to create [QueryBuilder]
+  /// return [Future<SocketData>]
+  ///
+  /// can check query success in [SocketData] instance member of [isSuccess]
+  /// if query success can found document in [SocketData] instance member of [data]
+  Future<int?> count(QueryBuilder _queryBuilder, {int trying = 0}) async {
+    if (connected) {
+      var _query = _queryBuilder.toQuery(QueryType.count, token: options.token);
+      var res = await sendAndWaitMessage(SocketData.create(
+          data: <String, dynamic>{'query': _query}, type: "query"));
+      if (res.isSuccess) {
+        return res.data?["count"];
+      }
+    } else {
+      if (trying < 5) {
+        await connect();
+        return count(_queryBuilder, trying: trying++);
+      } else {
+        return null;
+      }
+    }
   }
 
   /// Query one document in a collection
@@ -343,7 +372,6 @@ abstract class WebSocketServiceBase {
           _process.add(_p);
         }
 
-
         return _process;
       } else {
         return [];
@@ -391,7 +419,6 @@ abstract class WebSocketServiceBase {
       var dat = await sendAndWaitMessage(SocketData.create(
           data: <String, dynamic>{'query': _query}, type: "query"));
 
-
       return dat.data!['exists'];
     } else {
       if (trying < 5) {
@@ -418,11 +445,8 @@ abstract class WebSocketServiceBase {
       var _query =
           _queryBuilder.toQuery(QueryType.delete, token: options.token);
 
-
-
       var dat = await sendAndWaitMessage(SocketData.create(
           data: <String, dynamic>{'query': _query}, type: "query"));
-
 
       return dat.isSuccess;
     } else {
@@ -598,9 +622,6 @@ abstract class WebSocketServiceBase {
         var authData = await authService.initialAuthData;
 
         var secondID = Statics.getRandomId(30);
-
-
-
 
         var da = SocketData.fromFullData({
           'message_id': secondID,

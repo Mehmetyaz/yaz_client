@@ -104,4 +104,5 @@ const _$QueryTypeEnumMap = {
   QueryType.exists: 4,
   QueryType.streamQuery: 5,
   QueryType.delete: 6,
+  QueryType.count: 7
 };

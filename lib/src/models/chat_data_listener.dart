@@ -48,7 +48,7 @@ class ChatDataListener extends Stream<SocketData> {
       try {
         var dat = json.decode(d);
 
-        print(dat);
+
 
         if (dat["message_id"] == null || dat["message_type"] == null)
           return false;

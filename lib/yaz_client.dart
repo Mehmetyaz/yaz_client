@@ -9,7 +9,7 @@ export "src/socket_service.dart" show socketService;
 export 'src/extensions/date_time.dart';
 export 'src/extensions/duration.dart';
 export 'package:yaz_client/src/models/query_model/query_model.dart'
-    show collection;
+    show collection ,QueryBuilder;
 export 'package:yaz_client/src/models/socket_data/socket_data.dart'
     show SocketData;
 export 'package:yaz_client/src/models/user/current_user.dart' show CurrentUser;

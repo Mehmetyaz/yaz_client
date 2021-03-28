@@ -17,7 +17,7 @@ class WebSocketServiceMobile extends WebSocketServiceBase {
   WebSocketServiceMobile._internal();
 
   static final WebSocketServiceMobile _instance =
-      WebSocketServiceMobile._internal();
+  WebSocketServiceMobile._internal();
 
   WebSocket? socket;
 
@@ -31,7 +31,7 @@ class WebSocketServiceMobile extends WebSocketServiceBase {
     try {
       // ignore: avoid_print
       print('CONNECTION ${socket?.readyState ?? 'null'}');
-
+      print("Close Code: ${socket?.closeCode}");
       if (socket == null || socket?.readyState == 3) {
         socket = await WebSocket.connect(
             "ws://${options.globalHostName}:${options.webSocketPort}/ws");
@@ -40,6 +40,12 @@ class WebSocketServiceMobile extends WebSocketServiceBase {
       } else if (socket?.readyState == 1) {
         //TODO: CLose on app close
         try {
+          if (socket?.closeCode != null) {
+            socket = await WebSocket.connect(
+                "ws://${options.globalHostName}:${options.webSocketPort}/ws");
+            connected = false;
+            return await connect(i++);
+          }
           socket?.listen((event) {
             var d = json.decode(event);
             // ignore: avoid_print

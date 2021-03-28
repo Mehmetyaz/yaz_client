@@ -56,7 +56,7 @@ class WebSocketServiceWeb extends WebSocketServiceBase {
             }
             options.streamController.sink.add(event.data);
           }, onError: (e) {
-            // ignore: avoid_print
+
             print("ON ERROR::::$e");
             connected = false;
           }, onDone: () {
@@ -71,7 +71,7 @@ class WebSocketServiceWeb extends WebSocketServiceBase {
 
         options.socketConnection.listen((event) {
           options.downloadBytes += ((event.length * 2) as int?)!;
-          // ignore: avoid_print
+
 
           var dat = json.decode(event);
 
@@ -95,9 +95,8 @@ class WebSocketServiceWeb extends WebSocketServiceBase {
           return false;
         }
       }
-    } on Exception catch (e) {
-      // ignore: avoid_print
-      print(e);
+    } on Exception {
+
       return false;
     }
   }

@@ -193,20 +193,20 @@ class QueryBuilder {
         "Use one condition");
 
     if (isGreaterThan != null) {
-      _filters["\$gt"] ??= <String, dynamic>{};
-      _filters["\$gt"][fieldName] = isGreaterThan;
+      _filters["gt"] ??= <String, dynamic>{};
+      _filters["gt"][fieldName] = isGreaterThan;
     }
     if (isGreaterOrEqualThan != null) {
-      _filters["\$gte"] ??= <String, dynamic>{};
-      _filters["\$gte"][fieldName] = isGreaterOrEqualThan;
+      _filters["gte"] ??= <String, dynamic>{};
+      _filters["gte"][fieldName] = isGreaterOrEqualThan;
     }
     if (isLessThan != null) {
-      _filters["\$lt"] ??= <String, dynamic>{};
-      _filters["\$lt"][fieldName] = isLessThan;
+      _filters["lt"] ??= <String, dynamic>{};
+      _filters["lt"][fieldName] = isLessThan;
     }
     if (isLessOrEqualThan != null) {
-      _filters["\$lte"] ??= <String, dynamic>{};
-      _filters["\$lte"][fieldName] = isLessOrEqualThan;
+      _filters["lte"] ??= <String, dynamic>{};
+      _filters["lte"][fieldName] = isLessOrEqualThan;
     }
     return this;
   }

@@ -28,6 +28,9 @@ enum QueryType {
 
   ///
   @JsonValue(6)
-  delete
+  delete,
 
+  ///
+  @JsonValue(7)
+  count,
 }
