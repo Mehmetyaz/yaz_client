@@ -1,4 +1,8 @@
 
+## [0.0.4] - 2021-04-15
+
+* new query builder
+
 ## [0.0.3]
 
 * Null safety stable
