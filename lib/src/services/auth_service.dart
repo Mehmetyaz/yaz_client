@@ -46,11 +46,11 @@ class AuthService extends ChangeNotifier {
   ///
 
   /// Return remember button is marked
-  Future<bool?> get _isLoggedRemember async {
+  Future<bool> get _isLoggedRemember async {
     var preferences = await SharedPreferences.getInstance();
     var remember = preferences.containsKey('remember_user');
     if (remember) {
-      return preferences.getBool('remember_user');
+      return (preferences.getBool('remember_user') ?? false);
     } else {
       return false;
     }
@@ -112,7 +112,7 @@ class AuthService extends ChangeNotifier {
 
   /// User data at the beginning of the session
   Future<Map<String, dynamic>> get initialAuthData async {
-    var _isLogged = await (_isLoggedRemember as FutureOr<bool>);
+    var _isLogged = await (_isLoggedRemember);
     if (_isLogged) {
       return _savedAuthData;
     } else {

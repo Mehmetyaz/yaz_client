@@ -543,6 +543,9 @@ abstract class WebSocketServiceBase {
           'http://${options.globalHostName}:${options.mediaServerPort}/socket_request'));
       // ignore: avoid_print
       // print('RESPONSE RECEIVED : ${response.body}');
+
+      print("SOCKET REQUEST RESPONSE RECEIVED : ${response.body}");
+
       var decodedResponse = json.decode(response.body);
 
       if (decodedResponse['success'] != null &&
@@ -590,7 +593,7 @@ abstract class WebSocketServiceBase {
 
         ///First Connection Request
         var requestID = Statics.getRandomId(30);
-
+        print("STAGE 2 DATA Öncesi: ${requestID}");
         ///Sending "request_connection" and waiting "nonce_sending"
         var stage2Data = await sendAndWaitMessage(
             SocketData.fromFullData({
@@ -600,7 +603,7 @@ abstract class WebSocketServiceBase {
               "data": {}
             }),
             encrypted: false);
-
+        print("STAGE 2 DATA: ${stage2Data.fullData}");
         if (!stage2Data.isSuccess) {
           throw Exception('Unsuccessful connection ${stage2Data.isSuccess}');
         }
@@ -615,12 +618,15 @@ abstract class WebSocketServiceBase {
         options.cNonce = Nonce.random();
         var authService = AuthService();
 
+
+        print("Auth Öncesine Gelindi");
+
         ///ADD remember operations
         ///daha sonra eklencek
         ///auth servisinden gerekli bilgiler
         ///alınıp guess değil auth user olarak bilgiler gönderilecek
         var authData = await authService.initialAuthData;
-
+        print("Auth Geçildi: $authData");
         var secondID = Statics.getRandomId(30);
 
         var da = SocketData.fromFullData({
