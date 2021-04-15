@@ -544,7 +544,6 @@ abstract class WebSocketServiceBase {
       // ignore: avoid_print
       // print('RESPONSE RECEIVED : ${response.body}');
 
-      print("SOCKET REQUEST RESPONSE RECEIVED : ${response.body}");
 
       var decodedResponse = json.decode(response.body);
 
@@ -593,7 +592,7 @@ abstract class WebSocketServiceBase {
 
         ///First Connection Request
         var requestID = Statics.getRandomId(30);
-        print("STAGE 2 DATA Öncesi: ${requestID}");
+
         ///Sending "request_connection" and waiting "nonce_sending"
         var stage2Data = await sendAndWaitMessage(
             SocketData.fromFullData({
@@ -603,7 +602,7 @@ abstract class WebSocketServiceBase {
               "data": {}
             }),
             encrypted: false);
-        print("STAGE 2 DATA: ${stage2Data.fullData}");
+
         if (!stage2Data.isSuccess) {
           throw Exception('Unsuccessful connection ${stage2Data.isSuccess}');
         }
