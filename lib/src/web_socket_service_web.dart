@@ -34,7 +34,7 @@ class WebSocketServiceWeb extends WebSocketServiceBase {
 
       if (socket == null || socket?.readyState == 3) {
         socket = WebSocket(
-            "ws://${options.globalHostName}:${options.webSocketPort}/ws");
+            "ws${options.secure ? "s" : ""}://${options.globalHostName}:${options.webSocketPort}/ws");
         connected = false;
         return await connect(i++);
       } else if (socket?.readyState == 1) {

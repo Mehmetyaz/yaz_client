@@ -28,6 +28,8 @@ class SocketServiceOptions {
   static final SocketServiceOptions _instance =
       SocketServiceOptions._internal();
 
+  bool secure = false;
+
   ///Access token
   String? token;
 
@@ -68,10 +70,11 @@ class SocketServiceOptions {
 abstract class WebSocketServiceBase {
   SocketServiceOptions options = SocketServiceOptions();
 
-  void init(String host, String webSocketPort) {
+  void init(String host, String webSocketPort, {bool secure = false}) {
     options.webSocketPort = webSocketPort;
     options.mediaServerPort = webSocketPort;
     options.globalHostName = host;
+    options.secure = secure;
   }
 
   ///Web Socket connected

@@ -42,7 +42,7 @@ class WebSocketServiceMobile extends WebSocketServiceBase {
         try {
           if (socket?.closeCode != null) {
             socket = await WebSocket.connect(
-                "ws://${options.globalHostName}:${options.webSocketPort}/ws");
+                "ws${options.secure ? "s" : ""}://${options.globalHostName}:${options.webSocketPort}/ws");
             connected = false;
             return await connect(i++);
           }
