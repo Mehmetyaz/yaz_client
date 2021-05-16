@@ -543,7 +543,7 @@ abstract class WebSocketServiceBase {
       // print('Connection Requested');
 
       var response = await get(Uri.parse(
-          'http://${options.globalHostName}:${options.mediaServerPort}/socket_request'));
+          'http${options.secure ? "s" : ""}://${options.globalHostName}:${options.mediaServerPort}/socket_request'));
       // ignore: avoid_print
       // print('RESPONSE RECEIVED : ${response.body}');
 
