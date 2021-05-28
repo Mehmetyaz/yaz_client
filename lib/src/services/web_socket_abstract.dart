@@ -6,6 +6,7 @@ import 'dart:async'
         StreamSubscription,
         StreamTransformer;
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
@@ -250,7 +251,7 @@ abstract class WebSocketServiceBase {
     if (connected) {
       var _query = _queryBuilder.toQuery(QueryType.count, token: options.token);
       var res = await sendAndWaitMessage(SocketData.create(
-          data: <String, dynamic>{'query': _query}, type: "query"));
+          data: <String, dynamic>{'query': _query.toJson()}, type: "query"));
       if (res.isSuccess) {
         return res.data?["count"];
       }
@@ -281,7 +282,7 @@ abstract class WebSocketServiceBase {
           stream ? QueryType.streamQuery : QueryType.query,
           token: options.token);
       return sendAndWaitMessage(SocketData.create(
-          data: <String, dynamic>{'query': _query},
+          data: <String, dynamic>{'query': _query.toJson()},
           type: "query",
           messageId: customID));
     } else {
@@ -334,7 +335,7 @@ abstract class WebSocketServiceBase {
       _query.document = document;
       return sendAndWaitMessage(
           SocketData.create(
-              data: <String, dynamic>{'query': _query}, type: "query"),
+              data: <String, dynamic>{'query': _query.toJson()}, type: "query"),
           encrypted: true);
     } else {
       if (trying < 5) {
@@ -367,7 +368,7 @@ abstract class WebSocketServiceBase {
           _queryBuilder.toQuery(QueryType.listQuery, token: options.token);
 
       var dat = await sendAndWaitMessage(SocketData.create(
-          data: <String, dynamic>{'query': _query}, type: "query"));
+          data: <String, dynamic>{'query': _query.toJson()}, type: "query"));
       if (dat.isSuccess) {
         var _process = <Map<String, dynamic>>[];
 
@@ -420,7 +421,7 @@ abstract class WebSocketServiceBase {
           _queryBuilder.toQuery(QueryType.exists, token: options.token);
 
       var dat = await sendAndWaitMessage(SocketData.create(
-          data: <String, dynamic>{'query': _query}, type: "query"));
+          data: <String, dynamic>{'query': _query.toJson()}, type: "query"));
 
       return dat.data!['exists'];
     } else {
@@ -449,7 +450,7 @@ abstract class WebSocketServiceBase {
           _queryBuilder.toQuery(QueryType.delete, token: options.token);
 
       var dat = await sendAndWaitMessage(SocketData.create(
-          data: <String, dynamic>{'query': _query}, type: "query"));
+          data: <String, dynamic>{'query': _query.toJson()}, type: "query"));
 
       return dat.isSuccess;
     } else {
@@ -541,11 +542,22 @@ abstract class WebSocketServiceBase {
     try {
       // ignore: avoid_print
       // print('Connection Requested');
+      // HttpClient client = new HttpClient();
+      // client.badCertificateCallback = ((X509Certificate cert, String host, int port) => true);
 
+      //
+      // var req = await client.getUrl(Uri.parse(
+      //     'http${options.secure ? "s" : ""}://${options.globalHostName}:${options.mediaServerPort}/socket_request'));
+      //
+      // var res =await req.close();
+      //
+
+      print("REQQQQQ ");
       var response = await get(Uri.parse(
           'http${options.secure ? "s" : ""}://${options.globalHostName}:${options.mediaServerPort}/socket_request'));
       // ignore: avoid_print
-      // print('RESPONSE RECEIVED : ${response.body}');
+       print('RESPONSE RECEIVED : ${response.body}');
+
 
 
       var decodedResponse = json.decode(response.body);

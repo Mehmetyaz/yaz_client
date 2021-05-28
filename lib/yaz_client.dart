@@ -31,6 +31,9 @@ export 'package:yaz_client/src/statics/statics.dart'
 export 'src/extensions/date_time.dart';
 export 'src/extensions/duration.dart';
 export "src/socket_service.dart" show socketService;
+export 'package:yaz/yaz.dart';
+export 'src/services/pass_reset.dart';
+export 'src/services/verification.dart';
 
 class YazClient {
   static void init(

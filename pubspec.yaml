@@ -1,6 +1,6 @@
 name: yaz_client
 description: Yaz Framework Api For Flutter Client
-version: 0.0.5+3
+version: 0.0.5+4
 homepage: https://github.com/Mehmetyaz/yaz_client.git
 repository: https://github.com/Mehmetyaz/yaz_client.git
 
@@ -9,10 +9,12 @@ environment:
   flutter: ">=1.17.0"
 
 dependencies:
+  mailer: ^5.0.0
   cryptography: ^2.0.1
   shared_preferences: ^2.0.5
   json_annotation: ^4.0.1
   http: ^0.13.3
+  yaz: ^0.0.5+7
   flutter:
     sdk: flutter
   collection: ^1.15.0

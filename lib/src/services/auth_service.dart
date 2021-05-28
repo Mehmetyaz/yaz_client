@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yaz_client/src/models/user/current_user.dart';
+import 'package:yaz_client/src/services/pass_reset.dart';
 
 import '../models/socket_data/socket_data.dart';
 import '../socket_service.dart';
@@ -134,6 +135,22 @@ class AuthService extends ChangeNotifier {
     isLoggedIn = true;
   }
 
+  Future<bool?> userExist(String mail) async {
+    var res = await socketService
+        .customOperation("user_exists", {"mail_or_phone": mail});
+    return res.isSuccess && res["exists"];
+  }
+
+  Future<PasswordResetRequest?> passwordResetRequest(String mail,
+      {Duration verificationDuration = const Duration(minutes: 1)}) async {
+    if ((await userExist(mail)) ?? false) {
+      return PasswordResetRequest(mail);
+    } else {
+      print("USER NOT EXISTS");
+      return null;
+    }
+  }
+
   ///Register User
   Future<CurrentUser?> register(String mail, String password,
       {String? name,
@@ -182,8 +199,6 @@ class AuthService extends ChangeNotifier {
           'password': pass
         },
         type: "login"));
-
-
 
     if (response.isSuccess) {
       if (remember) {

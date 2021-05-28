@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:yaz_client/src/services/web_socket_abstract.dart';
 
 import 'exceptions/expected_arguments_web_socket.dart';
@@ -17,7 +18,7 @@ class WebSocketServiceMobile extends WebSocketServiceBase {
   WebSocketServiceMobile._internal();
 
   static final WebSocketServiceMobile _instance =
-  WebSocketServiceMobile._internal();
+      WebSocketServiceMobile._internal();
 
   WebSocket? socket;
 
@@ -33,8 +34,11 @@ class WebSocketServiceMobile extends WebSocketServiceBase {
       print('CONNECTION ${socket?.readyState ?? 'null'}');
       print("Close Code: ${socket?.closeCode}");
       if (socket == null || socket?.readyState == 3) {
+
+
+
         socket = await WebSocket.connect(
-            "ws://${options.globalHostName}:${options.webSocketPort}/ws");
+            "ws${options.secure ? "s" : ""}://${options.globalHostName}:${options.webSocketPort}/ws");
         connected = false;
         return await connect(i++);
       } else if (socket?.readyState == 1) {
