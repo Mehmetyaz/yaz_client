@@ -1,4 +1,4 @@
-import 'package:yaz_client/src/services/auth_service.dart';
+
 import 'package:yaz_client/src/services/verification.dart';
 import 'package:yaz/yaz.dart';
 import 'package:yaz_client/src/socket_service.dart';

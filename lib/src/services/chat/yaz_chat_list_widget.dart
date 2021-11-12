@@ -121,7 +121,7 @@ class _YazChatListWidgetState<T> extends State<YazChatListWidget<T>> {
     var userLoaded = users.containsKey(conversation.otherId);
     if (userLoaded) return _res(conversation);
     return FutureBuilder<T>(
-        future: _infoLoader(conversation.otherId!),
+        future: _infoLoader(conversation.otherId),
         builder: (c, AsyncSnapshot<T> snap) {
           if (snap.hasError) {
             return widget.errorBuilder(c, conversation.otherId, index);

@@ -104,7 +104,6 @@ class SocketData {
   late bool isEncrypted;
 
   ///
-  @JsonKey(ignore: true)
   Future<void> encrypt() async {
     Nonce? nonce = socketService.options.nonce, cNonce = socketService.options.cNonce;
     if (isDecrypted) {
@@ -130,7 +129,6 @@ class SocketData {
   }
 
   ///
-  @JsonKey(ignore: true)
   Future<void> decrypt() async {
     Nonce? nonce = socketService.options.nonce, cNonce = socketService.options.cNonce;
 

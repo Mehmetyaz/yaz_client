@@ -25,7 +25,7 @@ class __ChatMessageWidgetState extends State<_ChatMessageWidget> {
 
   @override
   void initState() {
-    listenerNeed = !widget.message.sent || !widget.message.receiverSeen!;
+    listenerNeed = !widget.message.sent || !widget.message.receiverSeen;
     if (listenerNeed) widget.message.addListener(_listener);
     super.initState();
   }
@@ -60,7 +60,7 @@ class YazMessageListWidget extends StatefulWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text(message.content!),
+            child: Text(message.content),
           )
         ],
       ),

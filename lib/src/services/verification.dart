@@ -70,7 +70,7 @@ class VerificationSession {
   Future<bool> verify(String code) async {
     var res = await socketService
         .customOperation("verification_code", {"id": id, "code": code}).timeout(
-            const Duration(seconds: 5), onTimeout: () {
+            const Duration(seconds: 15), onTimeout: () {
       return SocketData.fromFullData(
           {"success": false, "message_id": "", "message_type": "", "data": {}});
     });
@@ -94,40 +94,36 @@ class VerificationSession {
       "duration": duration.value.inMilliseconds,
       "id": id,
       "mail": receivePort,
-      "type" : VerificationType.mail.index
+      "type": VerificationType.mail.index
     }).timeout(const Duration(seconds: 5), onTimeout: () {
       return SocketData.fromFullData(
           {"success": false, "message_id": "", "message_type": "", "data": {}});
     });
 
+    print("IF ONCESI: $res");
+
+    print("IF ONCESI 2: ${res.fullData}");
     if (!res.isSuccess) {
+      print("Verification  Creation Fail : ${res.fullData}");
       status.value = VerificationStatus.creationFail;
       return;
     } else {
       status.value = VerificationStatus.values[res.data?["status"] ?? 4];
 
-      StreamController<Duration> _controller = StreamController();
-      Stream<Duration>? stream;
-      stream = Stream.periodic(Duration(seconds: 1), (d) {
-        if (d >= duration.value.inSeconds) {
-          status.value = VerificationStatus.timeout;
-          _controller.done;
-          return Duration.zero;
+      var completer = Completer();
+      var i = 0;
+      Timer? timer = Timer(Duration(seconds: 1), () {
+        duration.value = Duration(seconds: 60 - (i));
+        if (i == 60) {
+          completer.complete();
         }
-
-        _controller.add(Duration(seconds: duration.value.inSeconds - d));
-        return Duration(seconds: duration.value.inSeconds - d);
+        i++;
       });
 
-      var subs = _controller.stream.listen((event) {
-        _controller.add(event);
-        duration.value = event;
-      });
+      await completer.future;
 
-      await _controller.stream.last;
-      stream = null;
-      _controller.close();
-      subs.cancel();
+      timer.cancel();
+      timer = null;
     }
 
     if (status.value == VerificationStatus.noOther) {

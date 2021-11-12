@@ -79,6 +79,7 @@ class YazChatService extends ChangeNotifier {
         },
         useToken: true);
 
+    print("START CHAT WITH SERVER: $chatJson");
     var chat = YazChatConversation.fromJson(chatJson.data!["document"]);
     _conversations[chat.chatId] = chat;
     _conversationsIds.insert(0, chat.chatId);
@@ -238,14 +239,50 @@ class YazChatService extends ChangeNotifier {
 
 @JsonSerializable()
 class YazChatMessage extends Comparable with ChangeNotifier {
-  YazChatMessage(this.senderId, this.receiverId, this.messageId, this.content,
-      this.type, this.conversationId)
-      : sent = true;
+  YazChatMessage(
+      {required this.senderId,
+      required this.receiverId,
+      required this.messageId,
+      required this.content,
+      required this.type,
+      required this.conversationId,
+      required this.receiverSeen,
+      required this.sent,
+      this.seenDate,
+      this.receiveDate,
+      this.sendDate});
 
-  factory YazChatMessage.fromJson(Map<String, dynamic> map) =>
-      _$YazChatMessageFromJson(map);
+  factory YazChatMessage.fromJson(Map<String, dynamic> map) => YazChatMessage(
+      senderId: map["sender_id"],
+      receiverId: map["receiver_id"],
+      messageId: map["message_id"],
+      content: map["message_content"],
+      type: map["message_type"],
+      conversationId: map[CONVERSATION_ID],
+      receiverSeen: map["receiver_seen"],
+      sent: true,
+      receiveDate: map[RECEIVE_TIME] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map[RECEIVE_TIME])
+          : null,
+      seenDate: map[SEEN_TIME] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map[SEEN_TIME])
+          : null,
+      sendDate: map[MESSAGE_TIME] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map[MESSAGE_TIME])
+          : null);
 
-  Map<String, dynamic> toJson() => _$YazChatMessageToJson(this);
+  Map<String, dynamic> toJson() => {
+        CONVERSATION_ID: conversationId,
+        MESSAGE_TIME: seenDate?.millisecondsSinceEpoch,
+        RECEIVE_TIME: receiveDate?.millisecondsSinceEpoch,
+        SEEN_TIME: seenDate?.millisecondsSinceEpoch,
+        "sender_id": senderId,
+        "receiver_id": receiverId,
+        "receiver_seen": receiverSeen,
+        "message_id": messageId,
+        "message_content": content,
+        "message_type": type
+      };
 
   YazChatMessage.create(this.content,
       {this.type = "text", required YazChatConversation chatConversation})
@@ -255,8 +292,9 @@ class YazChatMessage extends Comparable with ChangeNotifier {
         senderId = chatConversation.ownId,
         sendDate = DateTime.now(),
         messageId = Statics.getRandomId(20);
+
   @JsonKey(ignore: true)
-  late bool sent;
+  bool sent = false;
 
   @JsonKey(
     name: MESSAGE_TIME,
@@ -280,25 +318,25 @@ class YazChatMessage extends Comparable with ChangeNotifier {
   DateTime? seenDate;
 
   @JsonKey(name: "sender_id", required: true)
-  final String? senderId;
+  final String senderId;
 
   @JsonKey(name: "receiver_id", required: true)
-  final String? receiverId;
+  final String receiverId;
 
   @JsonKey(name: "receiver_seen", required: true)
-  bool? receiverSeen;
+  bool receiverSeen;
 
   @JsonKey(name: "message_id")
-  final String? messageId;
+  final String messageId;
 
   @JsonKey(name: "message_content")
-  final String? content;
+  final String content;
 
   @JsonKey(name: "message_type")
-  final String? type;
+  final String type;
 
   @JsonKey(name: CONVERSATION_ID)
-  final String? conversationId;
+  final String conversationId;
 
   bool get currentUserIsSender {
     // print("CurrentUSER: ${authService.currentUser}");
@@ -307,11 +345,11 @@ class YazChatMessage extends Comparable with ChangeNotifier {
   }
 
   bool get seenReceived {
-    return !currentUserIsSender && receiverSeen!;
+    return !currentUserIsSender && receiverSeen;
   }
 
   bool get seenSent {
-    return currentUserIsSender && receiverSeen!;
+    return currentUserIsSender && receiverSeen;
   }
 
   /// This function only change local info
@@ -335,23 +373,46 @@ class YazChatMessage extends Comparable with ChangeNotifier {
   }
 }
 
+// Map<String, dynamic> _$YazChatMessageToJson(YazChatMessage yazChatMessage) {
+//   return {
+//
+//   };
+// }
+
 @JsonSerializable()
 class YazChatConversation extends Comparable with ChangeNotifier {
-  YazChatConversation(this.chatId, this.starter, this.receiver);
+  YazChatConversation(
+      {required this.chatId,
+      required this.starter,
+      required this.receiver,
+      required this.lastActivity,
+      required this.totalMessageCount});
 
   factory YazChatConversation.fromJson(Map<String, dynamic> json) =>
-      _$YazChatConversationFromJson(json);
+      YazChatConversation(
+          chatId: json[CONVERSATION_ID],
+          starter: json["starter_id"],
+          receiver: json["receiver_id"],
+          lastActivity:
+              DateTime.fromMillisecondsSinceEpoch(json[LAST_ACTIVITY]),
+          totalMessageCount: json["total_message_count"]);
 
-  Map<String, dynamic> toJson() => _$YazChatConversationToJson(this);
+  Map<String, dynamic> toJson() => {
+        CONVERSATION_ID: chatId,
+        "starter_id": starter,
+        "receiver_id": receiver,
+        LAST_ACTIVITY: lastActivity.millisecondsSinceEpoch,
+        "total_message_count": totalMessageCount
+      };
 
   @JsonKey(name: CONVERSATION_ID, required: true)
-  final String? chatId;
+  final String chatId;
 
   @JsonKey(name: "starter_id", required: true)
-  final String? starter;
+  final String starter;
 
   @JsonKey(name: "receiver_id", required: true)
-  final String? receiver;
+  final String receiver;
 
   @JsonKey(ignore: true)
   final MessageList messageList = MessageList();
@@ -361,7 +422,7 @@ class YazChatConversation extends Comparable with ChangeNotifier {
     fromJson: UserModelStatics.dateFromJson,
     toJson: UserModelStatics.dateToInt,
   )
-  DateTime? lastActivity;
+  DateTime lastActivity;
 
   @JsonKey(ignore: true)
   List<YazChatMessage>? get messages {
@@ -385,7 +446,7 @@ class YazChatConversation extends Comparable with ChangeNotifier {
   @override
   int compareTo(other) {
     if (other is YazChatConversation) {
-      return this.lastActivity!.compareTo(other.lastActivity!);
+      return this.lastActivity.compareTo(other.lastActivity);
     }
     return -1;
   }
@@ -398,7 +459,7 @@ class YazChatConversation extends Comparable with ChangeNotifier {
     messageList.addAll(chatId,
         list!.map<YazChatMessage>((e) => YazChatMessage.fromJson(e)).toList());
 
-    _allSeen = messages!.any((element) => !element.receiverSeen!);
+    _allSeen = messages!.any((element) => !element.receiverSeen);
     return null;
   }
 
@@ -409,7 +470,7 @@ class YazChatConversation extends Comparable with ChangeNotifier {
   bool loaded = false;
 
   @JsonKey(ignore: false, required: true, name: "total_message_count")
-  int? totalMessageCount;
+  int totalMessageCount;
 
   @JsonKey(ignore: true)
   int get messageCount {
@@ -420,7 +481,7 @@ class YazChatConversation extends Comparable with ChangeNotifier {
     _allSeen = false;
     print("LOAD MORE");
     if (!loaded && hasMore) {
-      if (totalMessageCount! > messageCount) {
+      if (totalMessageCount > messageCount) {
         loaded = true;
         notifyListeners();
 
@@ -456,11 +517,11 @@ class YazChatConversation extends Comparable with ChangeNotifier {
     return authService.userID == starter;
   }
 
-  String? get otherId {
+  String get otherId {
     return isStarter ? receiver : starter;
   }
 
-  String? get ownId {
+  String get ownId {
     return isStarter ? starter : receiver;
   }
 
@@ -469,7 +530,7 @@ class YazChatConversation extends Comparable with ChangeNotifier {
     int res = 0;
     for (var message in (messageList[chatId] ?? [])
         .where((element) => !element.currentUserIsSender)) {
-      if (!message.receiverSeen!) {
+      if (!message.receiverSeen) {
         res++;
       } else {
         break;
@@ -494,7 +555,7 @@ class YazChatConversation extends Comparable with ChangeNotifier {
       if (!message.currentUserIsSender) {
         print("${message.content} currentReceiver");
         // Received Message
-        if (!message.receiverSeen! && !message.currentUserIsSender) {
+        if (!message.receiverSeen && !message.currentUserIsSender) {
           if (!notify && !fromOther) {
             // Notify Not Seen
             notify = true;
@@ -514,6 +575,7 @@ class YazChatConversation extends Comparable with ChangeNotifier {
   }
 
   Future<void> _sendSeen() async {
+    await Future.delayed(Duration(milliseconds: 500));
     var data = {
       "time": DateTime.now().millisecondsSinceEpoch,
       CONVERSATION_ID: chatId,
@@ -574,12 +636,14 @@ class YazChatConversation extends Comparable with ChangeNotifier {
 
   Future<void> sendMessage(YazChatMessage message) async {
     print("Message: ${message.toJson()}");
+
     messageList.add(message.conversationId, message);
     notifyListeners();
     yazChatService._notify();
     var op = await socketService
         .customOperation(SEND_MESSAGE_OPERATION, {"message": message.toJson()});
     if (op.isSuccess) {
+      message.sendDate = DateTime.now();
       message._notifySend();
     }
   }

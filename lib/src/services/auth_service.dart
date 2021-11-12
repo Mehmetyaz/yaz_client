@@ -177,6 +177,10 @@ class AuthService extends ChangeNotifier {
           messageId: socketService.options.deviceID));
       await dat.decrypt();
 
+      if (dat.data != null && !dat.data!["success"]) {
+        throw Exception(dat.data!["reason"]);
+      }
+
       var resUs = CurrentUser.fromJson(dat.data!["user"]);
       return resUs;
     } on Exception {
