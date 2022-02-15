@@ -140,7 +140,6 @@ abstract class WebSocketServiceBase {
     if (connected) {
       try {
         if (encrypted) {
-          print(json.encode(data.fullData));
           await data.encrypt();
 
           var _sendingData = json.encode(data);
@@ -262,6 +261,7 @@ abstract class WebSocketServiceBase {
         return null;
       }
     }
+    return null;
   }
 
   /// Query one document in a collection
@@ -551,11 +551,9 @@ abstract class WebSocketServiceBase {
       // var res =await req.close();
       //
 
-      print("REQQQQQ ");
       var response = await get(Uri.parse(
           'http${options.secure ? "s" : ""}://${options.globalHostName}:${options.mediaServerPort}/socket_request'));
-      // ignore: avoid_print
-       print('RESPONSE RECEIVED : ${response.body}');
+
 
 
 
@@ -632,14 +630,13 @@ abstract class WebSocketServiceBase {
         var authService = AuthService();
 
 
-        print("Auth Öncesine Gelindi");
 
         ///ADD remember operations
         ///daha sonra eklencek
         ///auth servisinden gerekli bilgiler
         ///alınıp guess değil auth user olarak bilgiler gönderilecek
         var authData = await authService.initialAuthData;
-        print("Auth Geçildi: $authData");
+
         var secondID = Statics.getRandomId(30);
 
         var da = SocketData.fromFullData({
@@ -658,7 +655,6 @@ abstract class WebSocketServiceBase {
         ///Token received
         await stage4Data.decrypt();
 
-        print("TOKEN RECEIVED: ${stage4Data.fullData}");
 
         options.token = stage4Data.data!['token'];
 
@@ -675,7 +671,7 @@ abstract class WebSocketServiceBase {
         // print("CONNECTING NOT VALIDATED");
         return false;
       }
-    } on MissingRequiredKeysException catch (e) {
+    } on MissingRequiredKeysException {
       return false;
     } on Exception catch (e) {
       // ignore: avoid_print

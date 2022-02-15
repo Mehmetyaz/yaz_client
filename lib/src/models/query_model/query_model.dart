@@ -1,6 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:yaz_client/src/statics/query_type.dart';
-import 'package:yaz_client/src/statics/sorting.dart';
 import 'package:yaz_client/yaz_client.dart';
 
 part 'query_model.g.dart';

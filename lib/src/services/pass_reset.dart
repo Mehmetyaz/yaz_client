@@ -28,10 +28,9 @@ class PasswordResetRequest {
     if (_verified.value) {
       var res = await socketService.customOperation("set_new_password",
           {"id": session!.id, "password": password});
-      print("DB REF: ${res.fullData}");
+
       return res.isSuccess && res.data!["success"];
     }
-    print("Before ensure verified");
     return false;
   }
 }

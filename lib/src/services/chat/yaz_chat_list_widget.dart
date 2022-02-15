@@ -174,6 +174,7 @@ class _YazChatListWidgetState<T> extends State<YazChatListWidget<T>> {
 
   @override
   Widget build(BuildContext context) {
+    print("Conversations: ${chatService._conversationsIds}");
     return widget.sliverList
         ? SliverList(
             delegate: SliverChildBuilderDelegate(_builder,

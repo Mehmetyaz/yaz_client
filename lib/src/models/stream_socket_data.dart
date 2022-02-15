@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:yaz_client/src/models/query_model/query_model.dart';
-import 'package:yaz_client/src/models/socket_data/socket_data.dart';
 
 import '../../yaz_client.dart';
 

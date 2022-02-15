@@ -143,10 +143,11 @@ class AuthService extends ChangeNotifier {
 
   Future<PasswordResetRequest?> passwordResetRequest(String mail,
       {Duration verificationDuration = const Duration(minutes: 1)}) async {
+
     if ((await userExist(mail)) ?? false) {
+
       return PasswordResetRequest(mail);
     } else {
-      print("USER NOT EXISTS");
       return null;
     }
   }
@@ -190,6 +191,7 @@ class AuthService extends ChangeNotifier {
 
   ///Login
   Future<bool> login(String mail, String pass, {bool remember = true}) async {
+
     if (isLoggedIn) return isLoggedIn;
 
     if (!socketService.connected) {
@@ -204,6 +206,9 @@ class AuthService extends ChangeNotifier {
         },
         type: "login"));
 
+
+    print("response : ${response.fullData}");
+
     if (response.isSuccess) {
       if (remember) {
         await saveAuthData({'user_mail': mail, 'password': pass});
@@ -212,8 +217,6 @@ class AuthService extends ChangeNotifier {
       userID = currentUser?.userID;
 
       //TODO:Set User Image
-
-      print("LOGIN TOKEN: ${response.fullData}");
 
       authToken = response.data!['token'];
       socketService.options.token = authToken;

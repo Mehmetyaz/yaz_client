@@ -30,7 +30,6 @@ class WebSocketServiceWeb extends WebSocketServiceBase {
     }
     try {
       // ignore: avoid_print
-      print('CONNECTION STATE ${socket?.readyState ?? 'null'}');
 
       if (socket == null || socket?.readyState == 3) {
         socket = WebSocket(
@@ -57,13 +56,13 @@ class WebSocketServiceWeb extends WebSocketServiceBase {
             options.streamController.sink.add(event.data);
           }, onError: (e) {
 
-            print("ON ERROR::::$e");
+
             connected = false;
           }, onDone: () {
             connected = false;
           });
-        } on Exception catch(e,s) {
-          print("HATA: $e \n $s");
+        } on Exception {
+
 
           socket = null;
           await connect(i++);

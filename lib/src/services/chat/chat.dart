@@ -3,7 +3,6 @@ import 'dart:collection';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:yaz_client/src/models/query_model/query_model.dart';
 import 'package:yaz_client/src/statics/chat_strings.dart';
 import 'package:yaz_client/yaz_client.dart';
 import '../message_list.dart';
@@ -30,7 +29,7 @@ class YazChatService extends ChangeNotifier {
 
   final HashMap<String?, YazChatConversation> _conversations =
       HashMap.from(<String, YazChatConversation>{});
-  final List<String?> _conversationsIds = <String?>[];
+  final List<String> _conversationsIds = <String>[];
 
   Future<YazChatConversation> startChat(String userWith) async {
     var _id = Statics.getRandomId(30);
@@ -60,14 +59,14 @@ class YazChatService extends ChangeNotifier {
       }
       var newChatMe = await socketService.query(builder);
 
-      print("STARTING CHAT: ${newChatMe.data}");
-
       var chat = YazChatConversation.fromJson((newChatMe).data!);
 
-      print("ON MESSAGE:  :  : : :: : : ${chat.toJson()}");
-
       _conversations[chat.chatId] = chat;
-      _conversationsIds.insert(0, chat.chatId);
+
+      if (!_conversationsIds.contains(chat.chatId)) {
+        _conversationsIds.insert(0, chat.chatId);
+      }
+
       return chat;
     }
 
@@ -79,15 +78,28 @@ class YazChatService extends ChangeNotifier {
         },
         useToken: true);
 
-    print("START CHAT WITH SERVER: $chatJson");
     var chat = YazChatConversation.fromJson(chatJson.data!["document"]);
     _conversations[chat.chatId] = chat;
-    _conversationsIds.insert(0, chat.chatId);
+    if (!_conversationsIds.contains(chat.chatId)) {
+      _conversationsIds.insert(0, chat.chatId);
+    }
+
     notifyListeners();
     return chat;
   }
 
   _sort() {
+    var c = <String>[];
+
+    for (var r in _conversationsIds) {
+      if (!c.contains(r)) {
+        c.add(r);
+      }
+    }
+
+    _conversationsIds.clear();
+    _conversationsIds.addAll(c);
+
     /// Sort desc
     _conversationsIds
         .sort((a, b) => _conversations[b]!.compareTo(_conversations[a]));
@@ -100,13 +112,9 @@ class YazChatService extends ChangeNotifier {
           case NEW_MESSAGE_FROM_OTHER:
             var _conId = data["conversation_data"][CONVERSATION_ID];
             if (!_conversations.containsKey(_conId)) {
-              print("DDDD0");
-              // print(_conversations[_conId].toJson());
-              print("DDDD1");
               await _addReceivedNewConversation(
                   YazChatConversation.fromJson(data["conversation_data"]));
             }
-            print("NEW MESSAGE RECEIVED : ${data.data}");
             _conversations[_conId]!
               .._handleNewMessage(YazChatMessage.fromJson(data["message"]))
               .._update(
@@ -147,14 +155,15 @@ class YazChatService extends ChangeNotifier {
       YazChatConversation conversation) async {
     try {
       _conversations[conversation.chatId] = conversation;
-      _conversationsIds.insert(0, conversation.chatId);
+      if (!_conversationsIds.contains(conversation.chatId)) {
+        _conversationsIds.insert(0, conversation.chatId);
+      }
+
       _sort();
       notifyListeners();
 
       return;
-    } catch (e) {
-      print("CHAT DOC ALINAMADI : $e");
-    }
+    } catch (e) {}
   }
 
   Future<List<YazChatConversation>> _getAllConversations() async {
@@ -168,8 +177,6 @@ class YazChatService extends ChangeNotifier {
           ..where("receiver_id", isEqualTo: authService.userID)
           ..sort(LAST_ACTIVITY, Sorting.descending));
 
-    print("CHAT LIST DATA :  :  : $chatListData");
-
     chatListData!.addAll(chatListData2!);
 
     return (chatListData)
@@ -182,7 +189,6 @@ class YazChatService extends ChangeNotifier {
   //       .exists(Query.create("user_chat_documents",
   //       equals: {"user_id": authService.userID}))
   //       .then((value) {
-  //     print(value);
   //     if (value == null || (value != null && !value)) {
   //       socketService.insertQuery(Query.create("user_chat_documents",
   //           document: {"user_id": authService.userID}));
@@ -190,9 +196,13 @@ class YazChatService extends ChangeNotifier {
   //   });
   // }
 
+
+  bool initialized = false;
+
   Future<void> init() async {
+    if (initialized) return;
+    initialized = true;
     if (!authService.isLoggedIn) {
-      print("WARNING: Load Chats calling when auth is not logged in");
       return null;
     }
     // _createIfNotExists();
@@ -202,8 +212,10 @@ class YazChatService extends ChangeNotifier {
     /// Sort Descending
     _initialList.sort((a, b) => b.compareTo(a));
 
+
     /// add descending
     _conversationsIds.addAll(_initialList.map((e) => e.chatId));
+
 
     _conversations.addEntries(_initialList
         .map<MapEntry<String?, YazChatConversation>>(
@@ -273,7 +285,7 @@ class YazChatMessage extends Comparable with ChangeNotifier {
 
   Map<String, dynamic> toJson() => {
         CONVERSATION_ID: conversationId,
-        MESSAGE_TIME: seenDate?.millisecondsSinceEpoch,
+        MESSAGE_TIME: sendDate?.millisecondsSinceEpoch,
         RECEIVE_TIME: receiveDate?.millisecondsSinceEpoch,
         SEEN_TIME: seenDate?.millisecondsSinceEpoch,
         "sender_id": senderId,
@@ -285,13 +297,15 @@ class YazChatMessage extends Comparable with ChangeNotifier {
       };
 
   YazChatMessage.create(this.content,
-      {this.type = "text", required YazChatConversation chatConversation})
+      {this.type = "text",
+      required YazChatConversation chatConversation,
+      String? customID})
       : conversationId = chatConversation.chatId,
         receiverSeen = false,
         receiverId = chatConversation.otherId,
         senderId = chatConversation.ownId,
         sendDate = DateTime.now(),
-        messageId = Statics.getRandomId(20);
+        messageId = customID ?? Statics.getRandomId(20);
 
   @JsonKey(ignore: true)
   bool sent = false;
@@ -339,8 +353,6 @@ class YazChatMessage extends Comparable with ChangeNotifier {
   final String conversationId;
 
   bool get currentUserIsSender {
-    // print("CurrentUSER: ${authService.currentUser}");
-    // print(authService.currentUser.toJson());
     return authService.currentUser!.userID == senderId;
   }
 
@@ -393,8 +405,9 @@ class YazChatConversation extends Comparable with ChangeNotifier {
           chatId: json[CONVERSATION_ID],
           starter: json["starter_id"],
           receiver: json["receiver_id"],
-          lastActivity:
-              DateTime.fromMillisecondsSinceEpoch(json[LAST_ACTIVITY]),
+          lastActivity: json[LAST_ACTIVITY] == null
+              ? DateTime(1970)
+              : DateTime.fromMillisecondsSinceEpoch(json[LAST_ACTIVITY]),
           totalMessageCount: json["total_message_count"]);
 
   Map<String, dynamic> toJson() => {
@@ -431,11 +444,13 @@ class YazChatConversation extends Comparable with ChangeNotifier {
 
   @JsonKey(ignore: true)
   YazChatMessage? get lastMessage {
+    if (messageList[chatId] == null) return null;
+
     if (messageList[chatId] != null && messageList[chatId]!.isEmpty) {
       return null;
     }
 
-    return (messageList[chatId] ?? []).first;
+    return (messageList[chatId]!).first;
   }
 
   @JsonKey(ignore: true)
@@ -479,7 +494,6 @@ class YazChatConversation extends Comparable with ChangeNotifier {
 
   loadMore(Function onLoad) async {
     _allSeen = false;
-    print("LOAD MORE");
     if (!loaded && hasMore) {
       if (totalMessageCount > messageCount) {
         loaded = true;
@@ -553,7 +567,6 @@ class YazChatConversation extends Comparable with ChangeNotifier {
       allReceives = message.seenReceived;
       if (allReceives) break;
       if (!message.currentUserIsSender) {
-        print("${message.content} currentReceiver");
         // Received Message
         if (!message.receiverSeen && !message.currentUserIsSender) {
           if (!notify && !fromOther) {
@@ -635,8 +648,6 @@ class YazChatConversation extends Comparable with ChangeNotifier {
   final YazChatService yazChatService = YazChatService();
 
   Future<void> sendMessage(YazChatMessage message) async {
-    print("Message: ${message.toJson()}");
-
     messageList.add(message.conversationId, message);
     notifyListeners();
     yazChatService._notify();

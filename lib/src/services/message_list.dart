@@ -1,5 +1,3 @@
-
-
 import 'chat/chat.dart';
 
 class MessageList {
@@ -25,9 +23,14 @@ class MessageList {
     messages[chatID]!.insertAll(last ? messages[chatID]!.length : 0, _messages);
   }
 
-  void add(String? chatID, YazChatMessage _message, {bool last = false}) {
+  void add(String? chatID, YazChatMessage _message) {
     messages[chatID] ??= <YazChatMessage>[];
-    messages[chatID]!.insert(last ? messages[chatID]!.length : 0, _message);
+
+    if (messages[chatID]!.isNotEmpty &&
+        messages[chatID]![0].messageId == _message.messageId) {
+      return;
+    }
+    messages[chatID]!.insert(0, _message);
   }
 
   List<YazChatMessage>? operator [](String? chatID) {

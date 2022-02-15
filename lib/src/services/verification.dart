@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:yaz/yaz.dart';
 import 'package:yaz_client/yaz_client.dart';
 
 ///
@@ -44,6 +43,7 @@ class VerificationSession {
       : status = VerificationStatus.creating.notifier,
         id = Statics.getRandomId(20),
         duration = duration.notifier {
+    print("SERVER STAT 5: ${status.value}");
     _sendServer();
   }
 
@@ -74,9 +74,10 @@ class VerificationSession {
       return SocketData.fromFullData(
           {"success": false, "message_id": "", "message_type": "", "data": {}});
     });
-    print("VERIF RES: ${res.fullData}");
     if (res.isSuccess && res.data!["verified"]) {
       onVerify();
+      timer?.cancel();
+      timer = null;
       return true;
     }
     return false;
@@ -87,8 +88,12 @@ class VerificationSession {
     return _sendServer();
   }
 
+
+  Timer? timer;
+
   ///
   Future<void> _sendServer() async {
+    print("SERVER STAT 4: ${status.value}");
     var res = await socketService.customOperation("verification_request", {
       "topic": topic,
       "duration": duration.value.inMilliseconds,
@@ -99,21 +104,21 @@ class VerificationSession {
       return SocketData.fromFullData(
           {"success": false, "message_id": "", "message_type": "", "data": {}});
     });
-
-    print("IF ONCESI: $res");
-
-    print("IF ONCESI 2: ${res.fullData}");
+    print("SERVER STAT 3: ${status.value}");
     if (!res.isSuccess) {
-      print("Verification  Creation Fail : ${res.fullData}");
+      print("SERVER STAT 2: ${status.value}");
       status.value = VerificationStatus.creationFail;
       return;
     } else {
       status.value = VerificationStatus.values[res.data?["status"] ?? 4];
 
+      print("SERVER STAT: ${status.value}");
+
       var completer = Completer();
       var i = 0;
-      Timer? timer = Timer(Duration(seconds: 1), () {
+       timer = Timer.periodic(Duration(seconds: 1), (t) {
         duration.value = Duration(seconds: 60 - (i));
+        print("duration: ${duration.value}");
         if (i == 60) {
           completer.complete();
         }
@@ -122,7 +127,7 @@ class VerificationSession {
 
       await completer.future;
 
-      timer.cancel();
+      timer?.cancel();
       timer = null;
     }
 
